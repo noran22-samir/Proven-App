@@ -17,7 +17,7 @@ class FixedBottomNavBar extends StatelessWidget {
     return Container(
       decoration:  BoxDecoration(
         color: AppColors.tertiary,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+       
       ),
       child: SafeArea(
         child: SizedBox(
