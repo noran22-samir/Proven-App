@@ -61,10 +61,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.language, color: Colors.white),
-            onPressed: () {},
-          ),
         ],
       ),
       body: Column(
