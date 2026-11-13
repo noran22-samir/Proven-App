@@ -25,10 +25,10 @@ class FixedBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _item(0, Icons.storefront, 'Marketplace'),
-              _item(1, Icons.flash_on, 'Matchmaker'),
-              _item(2, Icons.receipt_long, 'Orders'),
-              _item(3, Icons.person, 'Profile'),
+               _item(0, Icons.layers, 'Projects',),
+              _item(1, Icons.add_circle_outline, 'Add'),
+              _item(2, Icons.assignment_outlined, 'Requests'),
+              _item(3, Icons.account_circle_outlined, 'Profile'),
             ],
           ),
         ),

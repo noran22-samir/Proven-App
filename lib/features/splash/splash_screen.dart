@@ -1,15 +1,8 @@
 //update splash
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proven/core/theme/colors.dart';
-
-/// Animated splash screen for Proven.
-///
-/// Supports Light/Dark (follows Theme.of(context).brightness) and
-/// English/Arabic (follows the app locale). Calls [onFinished] when the
-/// progress bar reaches 100%.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
     super.key,
