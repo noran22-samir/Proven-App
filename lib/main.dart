@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/features/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
+import 'package:proven/features/parchase_request/presentation/screens/purchase_requests_screen.dart';
 import 'package:proven/features/splash/splash_screen.dart';
+import 'package:proven/features/my_project/presentation/screens/my_project_screen.dart';
 
 
 void main() {
@@ -23,9 +25,10 @@ class _MyAppState extends State<MyApp> {
   _Stage _stage = _Stage.splash;
 
   final List<Widget> _items = [
-    MarketPage(),
-    const Center(child: Text('Matchmaker')),
-    const Center(child: Text('Orders')),
+    // MyProjectsScreen(),
+    PurchaseRequestsScreen(),
+    const Center(child: Text('add')),
+    const Center(child: Text('Requests')),
     const Center(child: Text('Profile')),
   ];
 
