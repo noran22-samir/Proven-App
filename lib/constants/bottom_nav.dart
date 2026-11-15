@@ -26,8 +26,8 @@ class FixedBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
                _item(0, Icons.layers, 'Projects',),
-              _item(1, Icons.add_circle_outline, 'Add'),
-              _item(2, Icons.assignment_outlined, 'Requests'),
+              _item(1, Icons.auto_awesome, 'Ai Matchmaker'),
+              // _item(2, Icons.assignment_outlined, 'Requests'),
               _item(3, Icons.account_circle_outlined, 'Profile'),
             ],
           ),
