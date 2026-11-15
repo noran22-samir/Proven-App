@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "740698355704",
+    "project_id": "proven-f44ee",
+    "storage_bucket": "proven-f44ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740698355704:android:ffd26a4ab1ac831e35480d",
+        "android_client_info": {
+          "package_name": "com.example.proven_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9qBwY2rbszcTudSc0UWiWrdcTgF1AhPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
