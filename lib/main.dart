@@ -1,12 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/features/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
-import 'features/Add Project/clinicflow_app.dart';
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
+
+
 }
 
 enum _Stage { splash, onboarding, home }
