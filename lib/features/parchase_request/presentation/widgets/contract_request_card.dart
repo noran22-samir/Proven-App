@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 
 class ContractRequestCard extends StatelessWidget {
-  // Properties / Fields required to configure the contract card dynamically
   final String initials;
   final String companyName;
   final String companySubtitle;
@@ -33,7 +32,7 @@ class ContractRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Outer card margin and container box with dark theme styling
+      // Outer card margin and container box 
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -44,7 +43,7 @@ class ContractRequestCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Top Section: Company Initials Avatar, Name, Subtitle, and Status Badge
+          // Top Section: Company Initials Avatar, Name, Subtitle, and Status Badge
           Row(
             children: [
               // Company initials box (e.g., NH, DR)

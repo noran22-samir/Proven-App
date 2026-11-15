@@ -35,11 +35,20 @@ class PurchaseRequestsScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             // Creator role badge indicator
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryContainer.withOpacity(0.6),
+                                color: AppColors.primaryContainer.withOpacity(
+                                  0.6,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.inversePrimary.withOpacity(0.3)),
+                                border: Border.all(
+                                  color: AppColors.inversePrimary.withOpacity(
+                                    0.3,
+                                  ),
+                                ),
                               ),
                               child: const Text(
                                 'CREATOR',
@@ -54,7 +63,7 @@ class PurchaseRequestsScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        
+
                         // Subtitle describing the screen context
                         const Text(
                           'Escrow payouts & graduation IP sales',
@@ -80,7 +89,9 @@ class PurchaseRequestsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.tertiaryContainer.withOpacity(0.45),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.outline.withOpacity(0.25)),
+                  border: Border.all(
+                    color: AppColors.outline.withOpacity(0.25),
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -89,7 +100,11 @@ class PurchaseRequestsScreen extends StatelessWidget {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.account_balance_wallet_outlined, color: AppColors.inversePrimary, size: 20),
+                            Icon(
+                              Icons.account_balance_wallet_outlined,
+                              color: AppColors.inversePrimary,
+                              size: 20,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Creator Balance',
@@ -103,15 +118,23 @@ class PurchaseRequestsScreen extends StatelessWidget {
                         ),
                         // Escrow active status indicator tag
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFF10B981).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFF34D399).withOpacity(0.4)),
+                            border: Border.all(
+                              color: const Color(0xFF34D399).withOpacity(0.4),
+                            ),
                           ),
                           child: const Row(
                             children: [
-                              CircleAvatar(radius: 3, backgroundColor: Color(0xFF34D399)),
+                              CircleAvatar(
+                                radius: 3,
+                                backgroundColor: Color(0xFF34D399),
+                              ),
                               SizedBox(width: 6),
                               Text(
                                 'Escrow Active',
@@ -162,7 +185,11 @@ class PurchaseRequestsScreen extends StatelessWidget {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.lock_outline, color: Color(0xFF818CF8), size: 15),
+                            Icon(
+                              Icons.lock_outline,
+                              color: Color(0xFF818CF8),
+                              size: 15,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'Protected by Proven Institutional Vault',
@@ -186,7 +213,96 @@ class PurchaseRequestsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
               const SizedBox(height: 24),
+              //Recent Inbound Contracts Header
+              Row(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Recent Purchase Requests',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryContainer.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.inversePrimary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: const Text(
+                      '3',
+                      style: TextStyle(
+                        color: AppColors.inversePrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    
+                  ),
+                  Spacer(),
+                   TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                ),
+                child: const Text(
+                  'History',
+                  style: TextStyle(
+                    color: AppColors.inversePrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+                ],
+              ),
+             
+              const SizedBox(height: 13),
+              //Contract Card 1: Nile Health Group//
+              ContractRequestCard(
+                initials: 'NH',
+                companyName: 'Nile Health Group',
+                companySubtitle: 'Enterprise Healthcare',
+                status: 'Paid',
+                statusColor: AppColors.inversePrimary,
+                statusBgColor: AppColors.surfaceTint.withOpacity(0.15),
+                date: 'Oct 24, 2024',
+                projectTitle: 'ClinicFlow - Healthcare Suite',
+                purchasePrice: '8,500 EGP',
+                netReceive: '7,650 EGP',
+                onDetailsTap: () {
+                  // Handle details button action
+                },
+              ),
+
+              // --- Contract Card 2: Delta Retail Tech ---
+              ContractRequestCard(
+                initials: 'DR',
+                companyName: 'Delta Retail Tech',
+                companySubtitle: 'Commercial POS Solutions',
+                status: 'Completed',
+                statusColor: const Color(0xFF34D399),
+                statusBgColor: const Color(0xFF10B981).withOpacity(0.15),
+                date: 'Oct 19, 2024',
+                projectTitle: 'RetailFlow - POS Terminal',
+                purchasePrice: '6,200 EGP',
+                netReceive: '5,580 EGP',
+                onDetailsTap: () {
+                  // Handle details button action
+                },
+              ),
             ],
           ),
         ),

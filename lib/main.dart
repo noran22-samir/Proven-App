@@ -4,7 +4,8 @@ import 'package:proven/features/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
 import 'features/Add Project/clinicflow_app.dart';
-
+import 'features/parchase_request/presentation/screens/purchase_requests_screen.dart';
+import 'features/my_project/presentation/screens/my_project_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -24,8 +25,9 @@ class _MyAppState extends State<MyApp> {
 
   final List<Widget> _items = [
     MarketPage(),
+    // MyProjectsScreen(),
     ClinicFlowApp(),
-    const Center(child: Text('Orders')),
+    PurchaseRequestsScreen(),
     const Center(child: Text('Profile')),
   ];
 
