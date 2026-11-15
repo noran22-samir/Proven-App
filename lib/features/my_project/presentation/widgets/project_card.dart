@@ -32,7 +32,6 @@ class ProjectCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        // The card background is dark and consistent with the theme defined in the `colors.dart` file.
         color: AppColors.tertiary,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.outline.withOpacity(0.3)),

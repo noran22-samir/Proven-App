@@ -23,7 +23,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
 @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // The dark background color for the new design from the AppColors file
       backgroundColor: AppColors.tertiary, 
       appBar: AppBar(
         backgroundColor: AppColors.tertiary,
@@ -56,6 +55,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
             ),
           ],
         ),
+
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
@@ -65,7 +65,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
       ),
       body: Column(
         children: [
-          // Horizontal filter bar consistent with the dark theme
+          // Horizontal filter bar consistent 
           Container(
             height: 60,
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -77,6 +77,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                 bool isSelected = selectedFilterIndex == index;
                 var filter = filters[index];
 
+
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -87,7 +88,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                     margin: const EdgeInsets.only(right: 10),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      // A light, prominent blue when selected, and a subtle, dark background when not selected.
                       color: isSelected ? AppColors.primaryContainer : AppColors.tertiaryContainer.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
@@ -141,7 +141,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
               },
             ),
           ),
-          // List of project cards in the dark theme
+          // List of project cards 
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
