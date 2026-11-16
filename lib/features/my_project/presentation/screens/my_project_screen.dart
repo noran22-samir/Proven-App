@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../widgets/project_card.dart';
-
-
+import '../../../Add Project/add_project_page.dart';
 
 class MyProjectsScreen extends StatefulWidget {
   const MyProjectsScreen({super.key});
@@ -14,16 +13,32 @@ class MyProjectsScreen extends StatefulWidget {
 class _MyProjectsScreenState extends State<MyProjectsScreen> {
   int selectedFilterIndex = 0;
 
-  final List<Map<String, Object>> filters = [
-    {'title': 'All', 'count': '3', 'hasDot': false, 'dotColor': Colors.transparent},
-    {'title': 'Pending', 'count': '1', 'hasDot': true, 'dotColor': Colors.amber},
-    {'title': 'Approved', 'count': '1', 'hasDot': true, 'dotColor': Colors.green},
-    {'title': 'Rejected', 'count': '0', 'hasDot': true, 'dotColor': Colors.red},
+  final List filters = [
+    {
+      'title': 'All',
+      'count': '3',
+      'hasDot': false,
+      'dotColor': Colors.transparent,
+    },
+    {
+      'title': 'Pending',
+      'count': '1',
+      'hasDot': true,
+      'dotColor': Colors.amber,
+    },
+    {
+      'title': 'Approved',
+      'count': '1',
+      'hasDot': true,
+      'dotColor': Colors.green,
+    },
+    {'title': 'Rejected', 'count': '1', 'hasDot': true, 'dotColor': Colors.red},
   ];
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.tertiary, 
+      backgroundColor: AppColors.tertiary,
       appBar: AppBar(
         backgroundColor: AppColors.tertiary,
         elevation: 0,
@@ -45,7 +60,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '3',
+                '3 Total',
                 style: TextStyle(
                   color: AppColors.onTertiaryContainer,
                   fontWeight: FontWeight.bold,
@@ -55,17 +70,49 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
             ),
           ],
         ),
-
         actions: [
+          // New Project Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryContainer,
+                foregroundColor: AppColors.inversePrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: AppColors.inversePrimary.withOpacity(0.3),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddProjectPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text(
+                'New',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              showSearch(context: context, delegate: ProjectSearchDelegate());
+            },
           ),
         ],
       ),
       body: Column(
         children: [
-          // Horizontal filter bar consistent 
+          // Horizontal Filter Bar
           Container(
             height: 60,
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -77,7 +124,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                 bool isSelected = selectedFilterIndex == index;
                 var filter = filters[index];
 
-
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -86,12 +132,19 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primaryContainer : AppColors.tertiaryContainer.withOpacity(0.5),
+                      color: isSelected
+                          ? AppColors.primaryContainer
+                          : AppColors.tertiaryContainer.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: isSelected ? AppColors.inversePrimary : AppColors.outline.withOpacity(0.3),
+                        color: isSelected
+                            ? AppColors.inversePrimary
+                            : AppColors.outline.withOpacity(0.3),
                       ),
                     ),
                     child: Row(
@@ -111,14 +164,19 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                         Text(
                           filter['title'] as String,
                           style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.onTertiaryContainer,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.onTertiaryContainer,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
                         ),
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Colors.white.withOpacity(0.2)
@@ -128,7 +186,9 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                           child: Text(
                             filter['count'] as String,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.onTertiaryContainer,
+                              color: isSelected
+                                  ? Colors.white
+                                  : AppColors.onTertiaryContainer,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
@@ -141,30 +201,62 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
               },
             ),
           ),
-          // List of project cards 
+          // List of Project Cards matching the design image exactly
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
-              children: const [
+              children: [
+                // 1. Pending Project
                 ProjectCard(
-                  status: 'Approved',
-                  statusColor: Colors.green,
-                  title: 'ClinicFlow - Intelligent Clinic Manager',
-                  description: 'Full-stack Next.js and Flutter platform for clinic scheduling...',
+                  title: 'ClinicFlow',
                   category: 'Healthcare',
                   price: '8,500 EGP',
-                  views: '342 views',
-                  inquiries: '14 inquiries',
-                ),
-                ProjectCard(
-                  status: 'Pending Review',
+                  status: 'Pending',
                   statusColor: Colors.amber,
-                  title: 'ShopLite - Modern E-Commerce',
-                  description: 'Retail platform with advanced shopping cart...',
-                  category: 'Retail',
-                  price: '6,000 EGP',
-                  views: '120 views',
-                  inquiries: '5 inquiries',
+                  statusBgColor: Colors.amber.withOpacity(0.15),
+                  subText: 'Submitted 2d ago',
+                  coverIcon: Icons.inventory_2_outlined,
+                  onEdit: () {},
+                  onDelete: () {},
+                ),
+                // 2. Approved Project
+                ProjectCard(
+                  title: 'ShopLite',
+                  category: 'E-Commerce',
+                  price: '6,200 EGP',
+                  status: 'Approved',
+                  statusColor: Colors.green,
+                  statusBgColor: Colors.green.withOpacity(0.15),
+                  subText: 'Live on Marketplace',
+                  subTextColor: Colors.green,
+                  coverIcon: Icons.shopping_bag_outlined,
+                  onEdit: () {},
+                  onDelete: () {},
+                ),
+                // 3. Rejected Project with Rejection Box & Resubmit Button
+                ProjectCard(
+                  title: 'EduTrack',
+                  category: 'EdTech',
+                  price: '4,800 EGP',
+                  status: 'Rejected',
+                  statusColor: Colors.redAccent,
+                  statusBgColor: Colors.redAccent.withOpacity(0.15),
+                  subText: 'Needs Revision',
+                  coverIcon: Icons.school_outlined,
+                  rejectionReason: 'Please add a working demo link.',
+                  onEdit: () {},
+                  onDelete: () {},
+                  onResubmit: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Edit & Resubmit clicked',
+                        style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: AppColors.tertiaryContainer,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -173,4 +265,61 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
       ),
     );
   }
+}
+
+class ProjectSearchDelegate extends SearchDelegate {
+  final List projects = [
+    {'title': 'ClinicFlow', 'status': 'Pending'},
+    {'title': 'ShopLite', 'status': 'Approved'},
+    {'title': 'EduTrack', 'status': 'Rejected'},
+  ];
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: AppColors.tertiary,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.tertiaryContainer,
+      ),
+    );
+  }
+
+  @override
+  List<Widget>? buildActions(BuildContext context) => [
+    IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
+  ];
+
+  @override
+  Widget? buildLeading(BuildContext context) => IconButton(
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () => close(context, null),
+  );
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final results = projects
+        .where(
+          (project) =>
+              project['title']!.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(
+          results[index]['title']!,
+          style: const TextStyle(color: Colors.white),
+        ),
+        subtitle: Text(
+          results[index]['status']!,
+          style: const TextStyle(color: Colors.grey),
+        ),
+        onTap: () => close(context, null),
+      ),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) => buildSuggestions(context);
 }

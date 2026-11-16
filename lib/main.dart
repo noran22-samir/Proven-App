@@ -25,8 +25,8 @@ class _MyAppState extends State<MyApp> {
 
   final List<Widget> _items = [
     MarketPage(),
-    // MyProjectsScreen(),
-    ClinicFlowApp(),
+    MyProjectsScreen(),
+    // ClinicFlowApp(),
     PurchaseRequestsScreen(),
     const Center(child: Text('Profile')),
   ];
