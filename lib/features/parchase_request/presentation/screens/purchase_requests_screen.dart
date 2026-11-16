@@ -248,27 +248,104 @@ class PurchaseRequestsScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    
                   ),
                   Spacer(),
-                   TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                ),
-                child: const Text(
-                  'History',
-                  style: TextStyle(
-                    color: AppColors.inversePrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.tertiaryContainer,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (context) => Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Purchase Request History',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+                              // History list items
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: const CircleAvatar(
+                                  backgroundColor: AppColors.primaryContainer,
+                                  child: const Text(
+                                    'EG',
+                                    style: TextStyle(
+                                      color: AppColors.inversePrimary,
+                                      fontWeight: FontWeight.bold),
+                                  ),
+                                 ),
+                                 title:const Text(
+                                  'Eagle Games - Game Development Studio',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                 ),
+                                 subtitle: const Text(
+                                  'Mar 25, 2025 • Completed',
+                                  style: TextStyle(
+                                    color: AppColors.onTertiaryContainer,
+                                    fontSize: 12,
+                                  ),
+                                 ),
+                                 trailing:const Text(
+                                  '5,400 EGP',
+                                  style: TextStyle(
+                                    color: AppColors.inversePrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                 ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                    ),
+                    child: const Text(
+                      'History',
+                      style: TextStyle(
+                        color: AppColors.inversePrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
-              ),
                 ],
               ),
-             
+
               const SizedBox(height: 13),
               //Contract Card 1: Nile Health Group//
               ContractRequestCard(
@@ -283,7 +360,17 @@ class PurchaseRequestsScreen extends StatelessWidget {
                 purchasePrice: '8,500 EGP',
                 netReceive: '7,650 EGP',
                 onDetailsTap: () {
-                  // Handle details button action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Details: ClinicFlow - Healthcare Suite | 8,500 EGP',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: AppColors.tertiaryContainer,
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 },
               ),
 
@@ -300,7 +387,17 @@ class PurchaseRequestsScreen extends StatelessWidget {
                 purchasePrice: '6,200 EGP',
                 netReceive: '5,580 EGP',
                 onDetailsTap: () {
-                  // Handle details button action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Details: RetailFlow - POS Terminal | 6,200 EGP',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: AppColors.tertiaryContainer,
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 },
               ),
             ],
