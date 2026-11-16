@@ -76,7 +76,39 @@ class PurchaseRequestsScreen extends StatelessWidget {
                     ),
                   ),
                   // Filter and search action buttons using a helper method
-                  _buildHeaderIconButton(Icons.tune, () {}),
+  //                 _buildHeaderIconButton(Icons.tune, () {
+  //                   final options = ['All Contracts', 'Paid Only', 'Completed Only'];
+  // showModalBottomSheet(
+  //   context: context,
+  //   backgroundColor: AppColors.tertiaryContainer,
+  //   shape: const RoundedRectangleBorder(
+  //     borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //   ),
+  //   builder: (context) => Padding(
+  //     padding: const EdgeInsets.all(16),
+  //     child: Column(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: options.map((option) => ListTile(
+  //         title: Text(option, style: const TextStyle(color: Colors.white)),
+  //         trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.inversePrimary),
+  //         onTap: () {
+  //           Navigator.pop(context);
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(
+  //               content: Text('Filter: $option', style: const TextStyle(color: Colors.white)),
+  //               backgroundColor: AppColors.tertiaryContainer,
+  //               behavior: SnackBarBehavior.floating,
+  //               duration: const Duration(seconds: 2),
+  //             ),
+  //           );
+  //         },
+  //       )).toList(),
+  //     ),
+  //   ),
+  // );
+
+  //                 }),
+
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(Icons.search, () {
                     showSearch(
@@ -504,6 +536,7 @@ class PurchaseRequestsScreen extends StatelessWidget {
   }
 }
 
+// Custom SearchDelegate for searching through contracts
 class ContractSearchDelegate extends SearchDelegate {
   // A list of the contracts we will search through
  final List items = [
