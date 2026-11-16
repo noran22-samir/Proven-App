@@ -78,7 +78,12 @@ class PurchaseRequestsScreen extends StatelessWidget {
                   // Filter and search action buttons using a helper method
                   _buildHeaderIconButton(Icons.tune, () {}),
                   const SizedBox(width: 8),
-                  _buildHeaderIconButton(Icons.search, () {}),
+                  _buildHeaderIconButton(Icons.search, () {
+                    showSearch(
+                      context: context,
+                      delegate: ContractSearchDelegate(),
+                    );
+                  }),
                 ],
               ),
               const SizedBox(height: 20),
@@ -220,7 +225,7 @@ class PurchaseRequestsScreen extends StatelessWidget {
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Recent Purchase Requests',
+                    'Recent Inbound Contractss',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -241,7 +246,7 @@ class PurchaseRequestsScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      '3',
+                      '2',
                       style: TextStyle(
                         color: AppColors.inversePrimary,
                         fontSize: 12,
@@ -300,31 +305,32 @@ class PurchaseRequestsScreen extends StatelessWidget {
                                     'EG',
                                     style: TextStyle(
                                       color: AppColors.inversePrimary,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                 ),
-                                 title:const Text(
+                                ),
+                                title: const Text(
                                   'Eagle Games - Game Development Studio',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
                                   ),
-                                 ),
-                                 subtitle: const Text(
+                                ),
+                                subtitle: const Text(
                                   'Mar 25, 2025 • Completed',
                                   style: TextStyle(
                                     color: AppColors.onTertiaryContainer,
                                     fontSize: 12,
                                   ),
-                                 ),
-                                 trailing:const Text(
+                                ),
+                                trailing: const Text(
                                   '5,400 EGP',
                                   style: TextStyle(
                                     color: AppColors.inversePrimary,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                 ),
-                              )
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -496,4 +502,54 @@ class PurchaseRequestsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class ContractSearchDelegate extends SearchDelegate {
+  // A list of the contracts we will search through
+ final List items = [
+    {'company': 'Nile Health Group', 'project': 'ClinicFlow - Healthcare Suite', 'price': '8,500 EGP'},
+    {'company': 'Delta Retail Tech', 'project': 'RetailFlow - POS Terminal', 'price': '6,200 EGP'},
+  ];
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: AppColors.tertiary,
+      appBarTheme: const AppBarTheme(backgroundColor: AppColors.tertiaryContainer),
+    );
+  }
+
+  // Clear button (X) on the right
+  @override
+  List<Widget>? buildActions(BuildContext context) => [
+        IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
+      ];
+
+  // Back button (arrow) on the left
+  @override
+  Widget? buildLeading(BuildContext context) => IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => close(context, null),
+      );
+
+  // Results that appear while typing
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final results = items.where((item) =>
+        item['company']!.toLowerCase().contains(query.toLowerCase()) ||
+        item['project']!.toLowerCase().contains(query.toLowerCase())).toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(results[index]['company']!, style: const TextStyle(color: Colors.white)),
+        subtitle: Text(results[index]['project']!, style: const TextStyle(color: Colors.grey)),
+        trailing: Text(results[index]['price']!, style: const TextStyle(color: AppColors.inversePrimary)),
+        onTap: () => close(context, null),
+      ),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) => buildSuggestions(context);
 }
