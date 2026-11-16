@@ -24,9 +24,9 @@ class _MyAppState extends State<MyApp> {
   _Stage _stage = _Stage.splash;
 
   final List<Widget> _items = [
-    MarketPage(),
+    // MarketPage(),
     MyProjectsScreen(),
-    // ClinicFlowApp(),
+    ClinicFlowApp(),
     PurchaseRequestsScreen(),
     const Center(child: Text('Profile')),
   ];
