@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
+import 'package:proven/features/Profile/company_profile.dart';
 import 'package:proven/features/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
@@ -26,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     MarketPage(),
     Center(child: Text('Ai Matchmaker')),
     const Center(child: Text('Orders')),
-    const Center(child: Text('Profile')),
+    CompanyProfile(),
   ];
 
   Widget _buildStage() {
