@@ -3,7 +3,7 @@ import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/features/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
-import 'features/Add Project/clinicflow_app.dart';
+// import 'features/Add Project/clinicflow_app.dart';
 
 void main() {
   runApp(const MyApp());
