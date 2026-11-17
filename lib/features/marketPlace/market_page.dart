@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proven/core/theme/colors.dart';
-import 'package:proven/features/marketPlace/Project_Details.dart';
+import 'package:proven/features/project_details/Project_Details.dart';
 
 
 
