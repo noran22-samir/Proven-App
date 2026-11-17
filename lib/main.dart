@@ -5,7 +5,7 @@ import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
 import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/features/auth/signup.dart';
-
+import 'package:proven/features/auth/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +16,7 @@ enum _Stage {
   onboarding,
   roleSelection,
   signUp,
+  login,
   home,
 }
 
@@ -31,6 +32,10 @@ class _MyAppState extends State<MyApp> {
   _Stage _stage = _Stage.splash;
 
   UserRole? _selectedRole;
+
+  // used to show a SnackBar from outside the screens
+  final GlobalKey<ScaffoldMessengerState> _messengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   final List<Widget> _items = [
     MarketPage(),
@@ -71,7 +76,7 @@ class _MyAppState extends State<MyApp> {
           onLogin: (role) {
             setState(() {
               _selectedRole = role;
-              _stage = _Stage.home;
+              _stage = _Stage.login;
             });
           },
         );
@@ -91,7 +96,41 @@ class _MyAppState extends State<MyApp> {
 
           onLogin: () {
             setState(() {
+              _stage = _Stage.login;
+            });
+          },
+
+          onBack: () {
+            setState(() {
+              _stage = _Stage.roleSelection;
+            });
+          },
+        );
+
+      case _Stage.login:
+        return LoginScreen(
+          key: const ValueKey('login'),
+
+          role: _selectedRole!,
+
+          onSubmit: (data) {
+            // TODO: Authenticate user with Firebase
+            setState(() {
               _stage = _Stage.home;
+            });
+          },
+
+          onForgotPassword: () {
+            _messengerKey.currentState?.showSnackBar(
+              const SnackBar(
+                content: Text('Forgot password feature coming soon'),
+              ),
+            );
+          },
+
+          onSignUp: () {
+            setState(() {
+              _stage = _Stage.signUp;
             });
           },
 
@@ -121,6 +160,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: _messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Proven',
       theme: ThemeData(
