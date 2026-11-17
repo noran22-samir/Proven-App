@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/features/marketPlace/market_page.dart';
@@ -6,7 +7,7 @@ import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
 import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/features/auth/signup.dart';
-
+import 'package:proven/features/auth/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,13 +15,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-enum _Stage {
-  splash,
-  onboarding,
-  roleSelection,
-  signUp,
-  home,
-}
+enum _Stage { splash, onboarding, roleSelection, signUp, home }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -34,6 +29,8 @@ class _MyAppState extends State<MyApp> {
   _Stage _stage = _Stage.splash;
 
   UserRole? _selectedRole;
+
+  final AuthService _authService = AuthService();
 
   final List<Widget> _items = [
     MarketPage(),
@@ -85,11 +82,28 @@ class _MyAppState extends State<MyApp> {
 
           role: _selectedRole!,
 
-          onSubmit: (data) {
-            // TODO: Send SignUpData to Firebase
-            setState(() {
-              _stage = _Stage.home;
-            });
+          onSubmit: (data) async {
+            try {
+              await _authService.createAccount(data);
+
+              if (!mounted) return;
+
+              setState(() {
+                _stage = _Stage.home;
+              });
+            } on FirebaseAuthException catch (e) {
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(e.message ?? 'Registration failed')),
+              );
+            } catch (e) {
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Something went wrong: $e')),
+              );
+            }
           },
 
           onLogin: () {
@@ -126,11 +140,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Proven',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       home: AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: _buildStage(),
@@ -138,4 +150,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

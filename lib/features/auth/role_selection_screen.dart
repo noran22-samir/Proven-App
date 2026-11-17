@@ -44,7 +44,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Who are you?',
+                      'Who Are You?',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -53,7 +53,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Choose how you will use Proven',
+                      'Choose How You Will Use Proven',
                       style: TextStyle(
                         fontSize: 15,
                         color: isDark
@@ -65,7 +65,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     _RoleCard(
                       icon: Icons.code_rounded,
                       title: 'Creator',
-                      description: 'I sell my graduation projects',
+                      description: 'I Sell My Graduation Projects',
                       isSelected: _selectedRole == UserRole.creator,
                       isDark: isDark,
                       onTap: () => setState(() => _selectedRole = UserRole.creator),
@@ -73,7 +73,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     _RoleCard(
                       icon: Icons.apartment_rounded,
                       title: 'Company',
-                      description: "I'm looking to buy ready projects",
+                      description: "I'm Looking To Buy Ready Projects",
                       isSelected: _selectedRole == UserRole.company,
                       isDark: isDark,
                       onTap: () => setState(() => _selectedRole = UserRole.company),
@@ -81,7 +81,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     _RoleCard(
                       icon: Icons.shield_rounded,
                       title: 'Admin',
-                      description: 'Review projects and manage the platform',
+                      description: 'Review Projects And Manage The Platform',
                       badge: 'Login only',
                       isSelected: isAdmin,
                       isDark: isDark,
@@ -183,7 +183,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'Admin accounts are created by the platform owner.',
+              'Admin Accounts Are Created By The Platform Owner.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.5,
@@ -197,7 +197,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           TextButton(
             onPressed: () => widget.onLogin(_selectedRole),
             child: Text(
-              'I already have an account',
+              'I Already Have An Account',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isDark ? const Color(0xFF7FB3DC) : AppColors.brandNavy,
