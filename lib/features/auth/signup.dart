@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proven/core/theme/colors.dart';
+import 'package:proven/core/widgets/proven_logo.dart';
 import 'package:proven/features/auth/role_selection_screen.dart';
 
 enum Gender { male, female }
@@ -57,13 +58,17 @@ class SignUpScreen extends StatefulWidget {
     required this.onSubmit,
     required this.onLogin,
     required this.onBack,
+    this.isLoading = false,
+    this.errorMessage,
   });
 
   final UserRole role; // chosen in the role selection screen
-  final ValueChanged<SignUpData>
-  onSubmit; // form is valid and "Create Account" tapped
+  final ValueChanged<SignUpData> onSubmit; // form is valid and "Create Account" tapped
   final VoidCallback onLogin; // "Login" link at the bottom
   final VoidCallback onBack; // back arrow
+
+  final bool isLoading; // shows a spinner on the button
+  final String? errorMessage; // example: "This email is already registered"
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -129,7 +134,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
-  // check which role the user chose, to show/hide fields about the Creator or the Company
   bool get _isCreator => widget.role == UserRole.creator;
   bool get _isCompany => widget.role == UserRole.company;
 
@@ -176,9 +180,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
-  String? _validateOptional(String? value) {
-    return null;
-  }
+  String? _validateOptional(String? value) => null;
 
   String? _validateYear(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -217,7 +219,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
-  // Egyptian landline Company number, example: 0234567890
+  // Egyptian mobile or landline Company number, example: 0234567890
   String? _validateCompanyPhone(String? value) {
     final phone = value?.trim() ?? '';
 
@@ -234,14 +236,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password Is Required';
-    if (value.length < 8) return 'Password Must Be At Least 8 Characters';
+    if (value == null || value.isEmpty) return 'Password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters';
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please Confirm Your Password';
-    if (value != _passwordController.text) return 'Passwords Do Not Match';
+    if (value == null || value.isEmpty) return 'Please confirm your password';
+    if (value != _passwordController.text) return 'Passwords do not match';
     return null;
   }
 
@@ -259,10 +261,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  String? _orNull(TextEditingController c) {
+    final text = c.text.trim();
+    return text.isEmpty ? null : text;
+  }
+
   void _submit() {
+    if (widget.isLoading) return;
+
     final isFormValid = _formKey.currentState!.validate();
     setState(() {
-      _showGenderError = widget.role == UserRole.creator && _gender == null;
+      _showGenderError = _isCreator && _gender == null;
     });
 
     if (!isFormValid || _showGenderError) return;
@@ -275,46 +284,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _passwordController.text,
 
         // Creator data
-        firstName: widget.role == UserRole.creator
-            ? _firstNameController.text.trim()
-            : null,
-        lastName: widget.role == UserRole.creator
-            ? _lastNameController.text.trim()
-            : null,
-        gender: widget.role == UserRole.creator ? _gender : null,
+        firstName: _isCreator ? _firstNameController.text.trim() : null,
+        lastName: _isCreator ? _lastNameController.text.trim() : null,
+        gender: _isCreator ? _gender : null,
 
         // Creator optional data
-        university: _universityController.text.trim().isEmpty
-            ? null
-            : _universityController.text.trim(),
-        faculty: _facultyController.text.trim().isEmpty
-            ? null
-            : _facultyController.text.trim(),
-        graduationYear: _graduationYearController.text.trim().isEmpty
-            ? null
-            : _graduationYearController.text.trim(),
-        specialization: _specializationController.text.trim().isEmpty
-            ? null
-            : _specializationController.text.trim(),
+        university: _orNull(_universityController),
+        faculty: _orNull(_facultyController),
+        graduationYear: _orNull(_graduationYearController),
+        specialization: _orNull(_specializationController),
 
         // Company data
-        companyName: widget.role == UserRole.company
-            ? _companyNameController.text.trim()
-            : null,
-        industry: widget.role == UserRole.company
-            ? _industryController.text.trim()
-            : null,
+        companyName: _isCompany ? _companyNameController.text.trim() : null,
+        industry: _isCompany ? _industryController.text.trim() : null,
 
         // Company optional data
-        foundedYear: _foundedYearController.text.trim().isEmpty
-            ? null
-            : _foundedYearController.text.trim(),
-        location: _locationController.text.trim().isEmpty
-            ? null
-            : _locationController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
+        foundedYear: _orNull(_foundedYearController),
+        location: _orNull(_locationController),
+        description: _orNull(_descriptionController),
       ),
     );
   }
@@ -325,401 +312,138 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final roleName = widget.role == UserRole.company ? 'Company' : 'Creator';
+    final heroHeight = MediaQuery.sizeOf(context).height * 0.24;
 
-    return Scaffold(
-      backgroundColor: _isDark
-          ? const Color(0xFF07121C)
-          : AppColors.canvasBackground,
-      appBar: AppBar(
-        backgroundColor: _isDark
-            ? const Color(0xFF07121C)
-            : AppColors.canvasBackground,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          onPressed: widget.onBack,
-          icon: Icon(Icons.arrow_back_rounded, color: _accent),
-        ),
-        title: Text(
-          'Create Account',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: _textColor,
-          ),
-        ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // the top of the screen is navy, so the status bar icons are light
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Scaffold(
+        backgroundColor: AppColors.brandNavy,
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              // shows which role the user chose
+              // navy band with the logo
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      widget.role == UserRole.company
-                          ? Icons.apartment_rounded
-                          : Icons.code_rounded,
-                      size: 16,
-                      color: _accent,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Signing Up As $roleName',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: _accent,
+                width: double.infinity,
+                height: heroHeight,
+                color: AppColors.brandNavy,
+                child: SafeArea(
+                  bottom: false,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 28),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              ProvenLogo(size: 56, showBorder: true),
+                              SizedBox(height: 10),
+                              Text(
+                                'Proven',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.borderOutline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 4,
+                        left: 8,
+                        child: IconButton(
+                          onPressed: widget.isLoading ? null : widget.onBack,
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: AppColors.borderOutline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
 
-              if (_currentStep == 0) ...[
-                Form(
-                  key: _basicFormKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // common fields
-                      _buildField(
-                        label: 'Email',
-                        hint: 'name@example.com',
-                        icon: Icons.mail_outline_rounded,
-                        controller: _emailController,
-                        validator: _validateEmail,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildField(
-                        label: 'Password',
-                        hint: 'At Least 8 Characters',
-                        icon: Icons.lock_outline_rounded,
-                        controller: _passwordController,
-                        validator: _validatePassword,
-                        hideText: _hidePassword,
-                        suffix: IconButton(
-                          onPressed: () =>
-                              setState(() => _hidePassword = !_hidePassword),
-                          icon: Icon(
-                            _hidePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: _accent,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildField(
-                        label: 'Confirm Password',
-                        hint: 'Re-enter Your Password',
-                        icon: Icons.lock_outline_rounded,
-                        controller: _confirmPasswordController,
-                        validator: _validateConfirmPassword,
-                        hideText: _hideConfirmPassword,
-                        action: TextInputAction.done,
-                        suffix: IconButton(
-                          onPressed: () => setState(
-                            () => _hideConfirmPassword = !_hideConfirmPassword,
-                          ),
-                          icon: Icon(
-                            _hideConfirmPassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: _accent,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _goToNextStep,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.brandNavy,
-                            foregroundColor: _isDark
-                                ? AppColors.borderOutline
-                                : Colors.white,
-                            side: _isDark
-                                ? const BorderSide(color: Color(0xFF3F7FB0))
-                                : null,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Continue',
+              // white (or dark) part with the form, its top corners are rounded
+              Positioned(
+                top: heroHeight - 28,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _isDark
+                        ? const Color(0xFF07121C)
+                        : AppColors.canvasBackground,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Create account',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
+                              color: _textColor,
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Creator fields
-                      if (_isCreator) ...[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _buildField(
-                                label: 'First Name',
-                                hint: 'Omar',
-                                icon: Icons.person_outline_rounded,
-                                controller: _firstNameController,
-                                validator: _validateName,
-                                keyboardType: TextInputType.name,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildField(
-                                label: 'Last Name',
-                                hint: 'Hassan',
-                                icon: Icons.person_outline_rounded,
-                                controller: _lastNameController,
-                                validator: _validateName,
-                                keyboardType: TextInputType.name,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Phone Number',
-                          hint: '01012345678',
-                          icon: Icons.phone_outlined,
-                          controller: _phoneController,
-                          validator: _isCompany
-                              ? _validateCompanyPhone
-                              : _validatePhone,
-                          keyboardType: TextInputType.phone,
-                          formatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(
-                              _isCompany ? 11 : 11,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'University',
-                          hint: 'Cairo University',
-                          icon: Icons.school_outlined,
-                          controller: _universityController,
-                          validator: _validateOptional,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Faculty',
-                          hint: 'Computer Science',
-                          icon: Icons.account_balance_outlined,
-                          controller: _facultyController,
-                          validator: _validateOptional,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Graduation Year',
-                          hint: '2027',
-                          icon: Icons.calendar_today_outlined,
-                          controller: _graduationYearController,
-                          validator: _validateYear,
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Specialization',
-                          hint: 'Mobile Development',
-                          icon: Icons.code_rounded,
-                          controller: _specializationController,
-                          validator: _validateOptional,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildGender(),
-                        const SizedBox(height: 28),
-                      ],
-
-                      // Company fields
-                      if (_isCompany) ...[
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Company Name',
-                          hint: 'Proven',
-                          icon: Icons.apartment_rounded,
-                          controller: _companyNameController,
-                          validator: _validateCompanyName,
-                          keyboardType: TextInputType.name,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Industry',
-                          hint: 'Software Development',
-                          icon: Icons.business_outlined,
-                          controller: _industryController,
-                          validator: _validateIndustry,
-                          keyboardType: TextInputType.name,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Phone Number',
-                          hint: '0234567890',
-                          icon: Icons.phone_outlined,
-                          controller: _phoneController,
-                          validator: _isCompany
-                              ? _validateCompanyPhone
-                              : _validatePhone,
-                          keyboardType: TextInputType.phone,
-                          formatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(
-                              _isCompany ? 11 : 11,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Founded Year',
-                          hint: '2020',
-                          icon: Icons.calendar_today_outlined,
-                          controller: _foundedYearController,
-                          validator: _validateYear,
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Location',
-                          hint: 'Cairo, Egypt',
-                          icon: Icons.location_on_outlined,
-                          controller: _locationController,
-                          validator: _validateOptional,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Company Description',
-                          hint: 'Tell us about your company',
-                          icon: Icons.description_outlined,
-                          controller: _descriptionController,
-                          validator: _validateOptional,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-
-                      // back button
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton(
-                          onPressed: _goToPreviousStep,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _accent,
-                            side: BorderSide(color: _accent),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Back'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // create account button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.brandNavy,
-                            foregroundColor: _isDark
-                                ? AppColors.borderOutline
-                                : Colors.white,
-                            side: _isDark
-                                ? const BorderSide(color: Color(0xFF3F7FB0))
-                                : null,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Create Account',
+                          const SizedBox(height: 6),
+                          Text(
+                            'Step ${_currentStep + 1} of 2',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: _secondaryTextColor,
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              ],
+                          const SizedBox(height: 14),
+                          _buildRoleChip(),
+                          const SizedBox(height: 20),
 
-              // link to login
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already Have An Account?',
-                    style: TextStyle(color: _secondaryTextColor),
-                  ),
-                  TextButton(
-                    onPressed: widget.onLogin,
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _accent,
+                          if (_currentStep == 0)
+                            _buildStepOne()
+                          else
+                            _buildStepTwo(),
+
+                          const SizedBox(height: 12),
+
+                          // link to login
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Already have an account?',
+                                style: TextStyle(color: _secondaryTextColor),
+                              ),
+                              TextButton(
+                                onPressed:
+                                    widget.isLoading ? null : widget.onLogin,
+                                child: Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _accent,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -729,8 +453,349 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // ---------------------------------------------------------------------
+  // steps
+  // ---------------------------------------------------------------------
+
+  Widget _buildStepOne() {
+    return Form(
+      key: _basicFormKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildField(
+            label: 'Email',
+            hint: 'name@example.com',
+            icon: Icons.mail_outline_rounded,
+            controller: _emailController,
+            validator: _validateEmail,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 16),
+          _buildField(
+            label: 'Password',
+            hint: 'At least 8 characters',
+            icon: Icons.lock_outline_rounded,
+            controller: _passwordController,
+            validator: _validatePassword,
+            hideText: _hidePassword,
+            suffix: IconButton(
+              onPressed: () => setState(() => _hidePassword = !_hidePassword),
+              icon: Icon(
+                _hidePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: _accent,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildField(
+            label: 'Confirm Password',
+            hint: 'Re-enter your password',
+            icon: Icons.lock_outline_rounded,
+            controller: _confirmPasswordController,
+            validator: _validateConfirmPassword,
+            hideText: _hideConfirmPassword,
+            action: TextInputAction.done,
+            suffix: IconButton(
+              onPressed: () => setState(
+                () => _hideConfirmPassword = !_hideConfirmPassword,
+              ),
+              icon: Icon(
+                _hideConfirmPassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: _accent,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildPrimaryButton(label: 'Continue', onPressed: _goToNextStep),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepTwo() {
+    return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Creator fields
+          if (_isCreator) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _buildField(
+                    label: 'First Name',
+                    hint: 'Omar',
+                    icon: Icons.person_outline_rounded,
+                    controller: _firstNameController,
+                    validator: _validateName,
+                    keyboardType: TextInputType.name,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildField(
+                    label: 'Last Name',
+                    hint: 'Hassan',
+                    icon: Icons.person_outline_rounded,
+                    controller: _lastNameController,
+                    validator: _validateName,
+                    keyboardType: TextInputType.name,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Phone Number',
+              hint: '01012345678',
+              icon: Icons.phone_outlined,
+              controller: _phoneController,
+              validator: _validatePhone,
+              keyboardType: TextInputType.phone,
+              formatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(11),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'University',
+              hint: 'Cairo University',
+              icon: Icons.school_outlined,
+              controller: _universityController,
+              validator: _validateOptional,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Faculty',
+              hint: 'Computer Science',
+              icon: Icons.account_balance_outlined,
+              controller: _facultyController,
+              validator: _validateOptional,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Graduation Year',
+              hint: '2027',
+              icon: Icons.calendar_today_outlined,
+              controller: _graduationYearController,
+              validator: _validateYear,
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Specialization',
+              hint: 'Mobile Development',
+              icon: Icons.code_rounded,
+              controller: _specializationController,
+              validator: _validateOptional,
+            ),
+            const SizedBox(height: 16),
+            _buildGender(),
+            const SizedBox(height: 20),
+          ],
+
+          // Company fields
+          if (_isCompany) ...[
+            _buildField(
+              label: 'Company Name',
+              hint: 'Proven',
+              icon: Icons.apartment_rounded,
+              controller: _companyNameController,
+              validator: _validateCompanyName,
+              keyboardType: TextInputType.name,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Industry',
+              hint: 'Software Development',
+              icon: Icons.business_outlined,
+              controller: _industryController,
+              validator: _validateIndustry,
+              keyboardType: TextInputType.name,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Phone Number',
+              hint: '0234567890',
+              icon: Icons.phone_outlined,
+              controller: _phoneController,
+              validator: _validateCompanyPhone,
+              keyboardType: TextInputType.phone,
+              formatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(11),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Founded Year',
+              hint: '2020',
+              icon: Icons.calendar_today_outlined,
+              controller: _foundedYearController,
+              validator: _validateYear,
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Location',
+              hint: 'Cairo, Egypt',
+              icon: Icons.location_on_outlined,
+              controller: _locationController,
+              validator: _validateOptional,
+            ),
+            const SizedBox(height: 16),
+            _buildField(
+              label: 'Company Description',
+              hint: 'Tell us about your company',
+              icon: Icons.description_outlined,
+              controller: _descriptionController,
+              validator: _validateOptional,
+            ),
+            const SizedBox(height: 20),
+          ],
+
+          // error from the backend (email already used, no internet...)
+          if (widget.errorMessage != null) ...[
+            _buildErrorBanner(widget.errorMessage!),
+            const SizedBox(height: 12),
+          ],
+
+          // back button
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton(
+              onPressed: widget.isLoading ? null : _goToPreviousStep,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _accent,
+                side: BorderSide(color: _accent),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text('Back'),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // create account button (shows a spinner while loading)
+          _buildPrimaryButton(
+            label: 'Create Account',
+            onPressed: widget.isLoading ? null : _submit,
+            isLoading: widget.isLoading,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
   // small builders
   // ---------------------------------------------------------------------
+
+  Widget _buildPrimaryButton({
+    required String label,
+    required VoidCallback? onPressed,
+    bool isLoading = false,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.brandNavy,
+          disabledBackgroundColor: AppColors.brandNavy.withValues(alpha: 0.6),
+          foregroundColor: _isDark ? AppColors.borderOutline : Colors.white,
+          side: _isDark ? const BorderSide(color: Color(0xFF3F7FB0)) : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: AppColors.borderOutline,
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
+    );
+  }
+
+  // shows which role the user chose
+  Widget _buildRoleChip() {
+    final roleName = _isCompany ? 'Company' : 'Creator';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: _accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _isCompany ? Icons.apartment_rounded : Icons.code_rounded,
+            size: 16,
+            color: _accent,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'Signing up as $roleName',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _accent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorBanner(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _errorColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _errorColor.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: _errorColor, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: _errorColor, fontSize: 13.5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // label on top + text field under it
   Widget _buildField({
@@ -753,6 +818,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         TextFormField(
           controller: controller,
           validator: validator,
+          enabled: !widget.isLoading,
           obscureText: hideText,
           keyboardType: keyboardType,
           inputFormatters: formatters,
@@ -818,7 +884,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 6, left: 4),
             child: Text(
-              'Please Select Your Gender',
+              'Please select your gender',
               style: TextStyle(color: _errorColor, fontSize: 12),
             ),
           ),
@@ -831,10 +897,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() {
-          _gender = value;
-          _showGenderError = false;
-        }),
+        onTap: widget.isLoading
+            ? null
+            : () => setState(() {
+                  _gender = value;
+                  _showGenderError = false;
+                }),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 54,

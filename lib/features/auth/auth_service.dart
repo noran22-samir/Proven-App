@@ -16,34 +16,47 @@ class AuthService {
 
     final user = credential.user!;
 
-    // Save user data in Firestore
-    await _firestore.collection('users').doc(user.uid).set({
-      'uid': user.uid,
-      'email': data.email,
-      'phone': data.phone,
-      'role': data.role.name,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
+    try {
+      // Save user data in Firestore
+      await _firestore.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'email': data.email,
+        'phone': data.phone,
+        'role': data.role.name,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
 
-      // Creator information
-      if (data.role == UserRole.creator) ...{
-        'firstName': data.firstName,
-        'lastName': data.lastName,
-        'gender': data.gender?.name,
-        'university': data.university,
-        'faculty': data.faculty,
-        'graduationYear': data.graduationYear,
-        'specialization': data.specialization,
-      },
+        // Creator information
+        if (data.role == UserRole.creator) ...{
+          'firstName': data.firstName,
+          'lastName': data.lastName,
+          'gender': data.gender?.name,
+          'university': data.university,
+          'faculty': data.faculty,
+          'graduationYear': data.graduationYear,
+          'specialization': data.specialization,
+        },
 
-      // Company information
-      if (data.role == UserRole.company) ...{
-        'companyName': data.companyName,
-        'industry': data.industry,
-        'foundedYear': data.foundedYear,
-        'location': data.location,
-        'description': data.description,
-      },
-    });
+        // Company information
+        if (data.role == UserRole.company) ...{
+          'companyName': data.companyName,
+          'industry': data.industry,
+          'foundedYear': data.foundedYear,
+          'location': data.location,
+          'description': data.description,
+        },
+      });
+    } catch (e) {
+      // if saving the data failed, delete the account so we don't leave
+      // a user in Auth without data in Firestore
+      await user.delete();
+      rethrow;
+    }
   }
+
+  Future<void> login(String email, String password) async {
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  Future<void> logout() => _auth.signOut();
 }

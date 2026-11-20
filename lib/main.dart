@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:proven/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,9 @@ import 'package:proven/features/auth/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: kIsWeb ? webFirebaseOptions : null,
+  );
   runApp(const MyApp());
 }
 
@@ -32,12 +36,34 @@ class _MyAppState extends State<MyApp> {
 
   final AuthService _authService = AuthService();
 
+  // used to show the SnackBar from outside the MaterialApp
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
+
+  // sign up state
+  bool _isSigningUp = false;
+  String? _signUpError;
+
   final List<Widget> _items = [
     MarketPage(),
     const Center(child: Text('Ai Matchmaker')),
     const Center(child: Text('Orders')),
     const Center(child: Text('Profile')),
   ];
+
+  String _authMessage(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return 'This email is already registered.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'network-request-failed':
+        return 'No internet connection. Please try again.';
+      default:
+        return 'Registration failed. Please try again.';
+    }
+  }
 
   Widget _buildStage() {
     switch (_stage) {
@@ -64,6 +90,7 @@ class _MyAppState extends State<MyApp> {
           onCreateAccount: (role) {
             setState(() {
               _selectedRole = role;
+              _signUpError = null;
               _stage = _Stage.signUp;
             });
           },
@@ -81,28 +108,42 @@ class _MyAppState extends State<MyApp> {
           key: const ValueKey('signUp'),
 
           role: _selectedRole!,
+          isLoading: _isSigningUp,
+          errorMessage: _signUpError,
 
           onSubmit: (data) async {
+            setState(() {
+              _isSigningUp = true;
+              _signUpError = null;
+            });
+
             try {
               await _authService.createAccount(data);
 
               if (!mounted) return;
 
               setState(() {
+                _isSigningUp = false;
                 _stage = _Stage.home;
               });
+
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(content: Text('Account created successfully 🎉')),
+              );
             } on FirebaseAuthException catch (e) {
               if (!mounted) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.message ?? 'Registration failed')),
-              );
+              setState(() {
+                _isSigningUp = false;
+                _signUpError = _authMessage(e.code);
+              });
             } catch (e) {
               if (!mounted) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Something went wrong: $e')),
-              );
+              setState(() {
+                _isSigningUp = false;
+                _signUpError = 'Something went wrong. Please try again.';
+              });
             }
           },
 
@@ -138,6 +179,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: _messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Proven',
       theme: ThemeData(primarySwatch: Colors.blue),
