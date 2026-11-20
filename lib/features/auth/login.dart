@@ -31,7 +31,7 @@ class LoginScreen extends StatefulWidget {
 
   final UserRole role; // chosen in the role selection screen
   final ValueChanged<LoginData> onSubmit; // form is valid and "Login" tapped
-  final VoidCallback onForgotPassword;
+  final ValueChanged<String> onForgotPassword; // gets the email the user typed
   final VoidCallback onSignUp; // not shown for the admin
   final VoidCallback onBack;
 
@@ -61,17 +61,21 @@ class _LoginScreenState extends State<LoginScreen> {
   // main color of icons, borders and links
   Color get _accent => _isDark ? const Color(0xFF7FB3DC) : AppColors.brandNavy;
 
-  Color get _textColor => _isDark ? AppColors.borderOutline : AppColors.textPrimary;
+  Color get _textColor =>
+      _isDark ? AppColors.borderOutline : AppColors.textPrimary;
 
   Color get _secondaryTextColor => _isDark
       ? AppColors.borderOutline.withValues(alpha: 0.7)
       : AppColors.textSecondary;
 
-  Color get _borderColor => _isDark ? const Color(0xFF2A4A66) : AppColors.borderOutline;
+  Color get _borderColor =>
+      _isDark ? const Color(0xFF2A4A66) : AppColors.borderOutline;
 
-  Color get _fieldColor => _isDark ? const Color(0xFF0D1E2D) : AppColors.cardSurface;
+  Color get _fieldColor =>
+      _isDark ? const Color(0xFF0D1E2D) : AppColors.cardSurface;
 
-  Color get _errorColor => _isDark ? const Color(0xFFFF8080) : const Color(0xFFC93C3C);
+  Color get _errorColor =>
+      _isDark ? const Color(0xFFFF8080) : const Color(0xFFC93C3C);
 
   String? _validateEmail(String? value) {
     final email = value?.trim() ?? '';
@@ -114,235 +118,259 @@ class _LoginScreenState extends State<LoginScreen> {
         // SizedBox.expand makes the Stack fill the whole screen
         body: SizedBox.expand(
           child: Stack(
-          children: [
-            // navy band with the logo
-            Container(
-              width: double.infinity,
-              height: heroHeight,
-              color: AppColors.brandNavy,
-              child: SafeArea(
-                bottom: false,
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 28),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            ProvenLogo(size: 56, showBorder: true),
-                            SizedBox(height: 10),
-                            Text(
-                              'Proven',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.borderOutline,
+            children: [
+              // navy band with the logo
+              Container(
+                width: double.infinity,
+                height: heroHeight,
+                color: AppColors.brandNavy,
+                child: SafeArea(
+                  bottom: false,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 28),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              ProvenLogo(size: 56, showBorder: true),
+                              SizedBox(height: 10),
+                              Text(
+                                'Proven',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.borderOutline,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      top: 4,
-                      left: 8,
-                      child: IconButton(
-                        onPressed: widget.isLoading ? null : widget.onBack,
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.borderOutline,
+                      Positioned(
+                        top: 4,
+                        left: 8,
+                        child: IconButton(
+                          onPressed: widget.isLoading ? null : widget.onBack,
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: AppColors.borderOutline,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // white (or dark) part with the form, its top corners are rounded
-            Positioned(
-              top: heroHeight - 28,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: _isDark ? const Color(0xFF07121C) : AppColors.canvasBackground,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome back',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: _textColor,
+              // white (or dark) part with the form, its top corners are rounded
+              Positioned(
+                top: heroHeight - 28,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _isDark
+                        ? const Color(0xFF07121C)
+                        : AppColors.canvasBackground,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome back',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: _textColor,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Sign in to continue',
-                            style: TextStyle(fontSize: 15, color: _secondaryTextColor),
-                          ),
-                          const SizedBox(height: 14),
-                          _buildRoleChip(),
-                          const SizedBox(height: 20),
-
-                          _buildLabel('Email'),
-                          const SizedBox(height: 6),
-                          TextFormField(
-                            controller: _emailController,
-                            validator: _validateEmail,
-                            enabled: !widget.isLoading,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            style: TextStyle(color: _textColor),
-                            cursorColor: _accent,
-                            decoration: _fieldDecoration(
-                              'name@example.com',
-                              Icons.mail_outline_rounded,
-                              null,
+                            const SizedBox(height: 6),
+                            Text(
+                              'Sign in to continue',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: _secondaryTextColor,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
+                            const SizedBox(height: 14),
+                            _buildRoleChip(),
+                            const SizedBox(height: 20),
 
-                          _buildLabel('Password'),
-                          const SizedBox(height: 6),
-                          TextFormField(
-                            controller: _passwordController,
-                            validator: _validatePassword,
-                            enabled: !widget.isLoading,
-                            obscureText: _hidePassword,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _submit(),
-                            style: TextStyle(color: _textColor),
-                            cursorColor: _accent,
-                            decoration: _fieldDecoration(
-                              'Enter your password',
-                              Icons.lock_outline_rounded,
-                              IconButton(
-                                onPressed: () =>
-                                    setState(() => _hidePassword = !_hidePassword),
-                                icon: Icon(
-                                  _hidePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: _accent,
+                            _buildLabel('Email'),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _emailController,
+                              validator: _validateEmail,
+                              enabled: !widget.isLoading,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              style: TextStyle(color: _textColor),
+                              cursorColor: _accent,
+                              decoration: _fieldDecoration(
+                                'name@example.com',
+                                Icons.mail_outline_rounded,
+                                null,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            _buildLabel('Password'),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _passwordController,
+                              validator: _validatePassword,
+                              enabled: !widget.isLoading,
+                              obscureText: _hidePassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _submit(),
+                              style: TextStyle(color: _textColor),
+                              cursorColor: _accent,
+                              decoration: _fieldDecoration(
+                                'Enter your password',
+                                Icons.lock_outline_rounded,
+                                IconButton(
+                                  onPressed: () => setState(
+                                    () => _hidePassword = !_hidePassword,
+                                  ),
+                                  icon: Icon(
+                                    _hidePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: _accent,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          // forgot password link
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: widget.isLoading ? null : widget.onForgotPassword,
-                              child: Text(
-                                'Forgot password?',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: _accent,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // error from the backend (wrong email or password)
-                          if (widget.errorMessage != null) ...[
-                            _buildErrorBanner(widget.errorMessage!),
-                            const SizedBox(height: 12),
-                          ],
-
-                          // login button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: widget.isLoading ? null : _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.brandNavy,
-                                disabledBackgroundColor:
-                                    AppColors.brandNavy.withValues(alpha: 0.6),
-                                foregroundColor:
-                                    _isDark ? AppColors.borderOutline : Colors.white,
-                                side: _isDark
-                                    ? const BorderSide(color: Color(0xFF3F7FB0))
-                                    : null,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: widget.isLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: AppColors.borderOutline,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-
-                          // the admin cannot sign up, everyone else can
-                          if (isAdmin)
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                            // forgot password link (sends the typed email)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: widget.isLoading
+                                    ? null
+                                    : () => widget.onForgotPassword(
+                                          _emailController.text.trim(),
+                                        ),
                                 child: Text(
-                                  'Admin accounts are created by the platform owner.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 12.5, color: _secondaryTextColor),
+                                  'Forgot password?',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: _accent,
+                                  ),
                                 ),
                               ),
-                            )
-                          else
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Don't have an account?",
-                                  style: TextStyle(color: _secondaryTextColor),
+                            ),
+
+                            // error from the backend (wrong email or password)
+                            if (widget.errorMessage != null) ...[
+                              _buildErrorBanner(widget.errorMessage!),
+                              const SizedBox(height: 12),
+                            ],
+
+                            // login button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: widget.isLoading ? null : _submit,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.brandNavy,
+                                  disabledBackgroundColor: AppColors.brandNavy
+                                      .withValues(alpha: 0.6),
+                                  foregroundColor: _isDark
+                                      ? AppColors.borderOutline
+                                      : Colors.white,
+                                  side: _isDark
+                                      ? const BorderSide(
+                                          color: Color(0xFF3F7FB0),
+                                        )
+                                      : null,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                 ),
-                                TextButton(
-                                  onPressed: widget.isLoading ? null : widget.onSignUp,
+                                child: widget.isLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: AppColors.borderOutline,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Login',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            // the admin cannot sign up, everyone else can
+                            if (isAdmin)
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   child: Text(
-                                    'Sign Up',
+                                    'Admin accounts are created by the platform owner.',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: _accent,
+                                      fontSize: 12.5,
+                                      color: _secondaryTextColor,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                        ],
+                              )
+                            else
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Don't have an account?",
+                                    style: TextStyle(
+                                      color: _secondaryTextColor,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: widget.isLoading
+                                        ? null
+                                        : widget.onSignUp,
+                                    child: Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: _accent,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
@@ -385,7 +413,11 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(width: 6),
           Text(
             'Logging in as $name',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _accent),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _accent,
+            ),
           ),
         ],
       ),
@@ -395,7 +427,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _textColor),
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: _textColor,
+      ),
     );
   }
 
@@ -413,7 +449,10 @@ class _LoginScreenState extends State<LoginScreen> {
           Icon(Icons.error_outline_rounded, color: _errorColor, size: 20),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(message, style: TextStyle(color: _errorColor, fontSize: 13.5)),
+            child: Text(
+              message,
+              style: TextStyle(color: _errorColor, fontSize: 13.5),
+            ),
           ),
         ],
       ),

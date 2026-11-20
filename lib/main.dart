@@ -14,9 +14,7 @@ import 'package:proven/features/auth/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: kIsWeb ? webFirebaseOptions : null,
-  );
+  await Firebase.initializeApp(options: kIsWeb ? webFirebaseOptions : null);
   runApp(const MyApp());
 }
 
@@ -99,7 +97,10 @@ class _MyAppState extends State<MyApp> {
         return SplashScreen(
           key: const ValueKey('splash'),
           onFinished: () {
-            setState(() => _stage = _Stage.onboarding);
+            final user = FirebaseAuth.instance.currentUser;
+            setState(() {
+              _stage = user != null ? _Stage.home : _Stage.onboarding;
+            });
           },
         );
 
@@ -158,7 +159,9 @@ class _MyAppState extends State<MyApp> {
               });
 
               _messengerKey.currentState?.showSnackBar(
-                const SnackBar(content: Text('Account created successfully 🎉')),
+                const SnackBar(
+                  content: Text('Account created successfully 🎉'),
+                ),
               );
             } on FirebaseAuthException catch (e) {
               if (!mounted) return;
@@ -232,12 +235,34 @@ class _MyAppState extends State<MyApp> {
             }
           },
 
-          onForgotPassword: () {
-            _messengerKey.currentState?.showSnackBar(
-              const SnackBar(
-                content: Text('Forgot password feature coming soon'),
-              ),
-            );
+          onForgotPassword: (email) async {
+            if (email.isEmpty) {
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(content: Text('Enter your email first')),
+              );
+              return;
+            }
+
+            try {
+              await _authService.sendPasswordReset(email);
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'If this email is registered, a reset link has been sent. Check your inbox and spam.',
+                  ),
+                ),
+              );
+            } on FirebaseAuthException catch (e) {
+              _messengerKey.currentState?.showSnackBar(
+                SnackBar(content: Text(_loginMessage(e.code))),
+              );
+            } catch (e) {
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(
+                  content: Text('Something went wrong. Please try again.'),
+                ),
+              );
+            }
           },
 
           onSignUp: () {
@@ -284,5 +309,14 @@ class _MyAppState extends State<MyApp> {
         child: _buildStage(),
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    await _authService.logout();
+    if (!mounted) return;
+    setState(() {
+      _currentIndex = 0;
+      _stage = _Stage.roleSelection;
+    });
   }
 }
