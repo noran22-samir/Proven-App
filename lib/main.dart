@@ -10,6 +10,7 @@ import 'package:proven/features/splash/splash_screen.dart';
 import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/features/auth/signup.dart';
 import 'package:proven/features/auth/auth_service.dart';
+import 'package:proven/features/auth/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,7 +99,7 @@ class _MyAppState extends State<MyApp> {
           onLogin: (role) {
             setState(() {
               _selectedRole = role;
-              _stage = _Stage.home;
+              _stage = _Stage.login;
             });
           },
         );
@@ -149,6 +150,71 @@ class _MyAppState extends State<MyApp> {
 
           onLogin: () {
             setState(() {
+              _stage = _Stage.login;
+            });
+          },
+
+          onBack: () {
+            setState(() {
+              _stage = _Stage.roleSelection;
+            });
+          },
+        );
+
+      case _Stage.login:
+        return LoginScreen(
+          key: const ValueKey('login'),
+
+          role: _selectedRole!,
+          isLoading: _isSigningUp,
+          errorMessage: _signUpError,
+
+          onSubmit: (data) async {
+            setState(() {
+              _isSigningUp = true;
+              _signUpError = null;
+            });
+
+            try {
+              await _authService.createAccount(data);
+
+              if (!mounted) return;
+
+              setState(() {
+                _isSigningUp = false;
+                _stage = _Stage.home;
+              });
+
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(content: Text('Account created successfully 🎉')),
+              );
+            } on FirebaseAuthException catch (e) {
+              if (!mounted) return;
+
+              setState(() {
+                _isSigningUp = false;
+                _signUpError = _authMessage(e.code);
+              });
+            } catch (e) {
+              if (!mounted) return;
+
+              setState(() {
+                _isSigningUp = false;
+                _signUpError = 'Something went wrong. Please try again.';
+              });
+            }
+          },
+
+          onForgotPassword: () {
+            _messengerKey.currentState?.showSnackBar(
+              const SnackBar(
+                content: Text('Forgot password feature coming soon'),
+              ),
+            );
+          },
+
+          onSignUp: () {
+            setState(() {
               _stage = _Stage.home;
             });
           },
@@ -179,6 +245,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: _messengerKey,
       scaffoldMessengerKey: _messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Proven',
