@@ -71,37 +71,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
           ],
         ),
         actions: [
-          // New Project Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryContainer,
-                foregroundColor: AppColors.inversePrimary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: AppColors.inversePrimary.withOpacity(0.3),
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddProjectPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add, size: 16),
-              label: const Text(
-                'New',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
