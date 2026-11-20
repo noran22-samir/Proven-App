@@ -20,7 +20,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-enum _Stage { splash, onboarding, roleSelection, signUp, home }
+enum _Stage { splash, onboarding, roleSelection, signUp, login, home }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -44,6 +44,10 @@ class _MyAppState extends State<MyApp> {
   bool _isSigningUp = false;
   String? _signUpError;
 
+  // login state
+  bool _isLoggingIn = false;
+  String? _loginError;
+
   final List<Widget> _items = [
     MarketPage(),
     const Center(child: Text('Ai Matchmaker')),
@@ -51,7 +55,7 @@ class _MyAppState extends State<MyApp> {
     const Center(child: Text('Profile')),
   ];
 
-  String _authMessage(String code) {
+  String _signUpMessage(String code) {
     switch (code) {
       case 'email-already-in-use':
         return 'This email is already registered.';
@@ -63,6 +67,29 @@ class _MyAppState extends State<MyApp> {
         return 'No internet connection. Please try again.';
       default:
         return 'Registration failed. Please try again.';
+    }
+  }
+
+  String _loginMessage(String code) {
+    switch (code) {
+      case 'invalid-credential':
+      case 'user-not-found':
+      case 'wrong-password':
+        return 'Wrong email or password.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'No internet connection. Please try again.';
+      case 'wrong-role':
+        return 'This account is not registered with the selected role.';
+      case 'profile-not-found':
+        return 'Account data was not found. Please sign up again.';
+      default:
+        return 'Login failed. Please try again.';
     }
   }
 
@@ -99,6 +126,7 @@ class _MyAppState extends State<MyApp> {
           onLogin: (role) {
             setState(() {
               _selectedRole = role;
+              _loginError = null;
               _stage = _Stage.login;
             });
           },
@@ -125,6 +153,7 @@ class _MyAppState extends State<MyApp> {
 
               setState(() {
                 _isSigningUp = false;
+                _currentIndex = 0;
                 _stage = _Stage.home;
               });
 
@@ -136,7 +165,7 @@ class _MyAppState extends State<MyApp> {
 
               setState(() {
                 _isSigningUp = false;
-                _signUpError = _authMessage(e.code);
+                _signUpError = _signUpMessage(e.code);
               });
             } catch (e) {
               if (!mounted) return;
@@ -150,6 +179,7 @@ class _MyAppState extends State<MyApp> {
 
           onLogin: () {
             setState(() {
+              _loginError = null;
               _stage = _Stage.login;
             });
           },
@@ -166,41 +196,38 @@ class _MyAppState extends State<MyApp> {
           key: const ValueKey('login'),
 
           role: _selectedRole!,
-          isLoading: _isSigningUp,
-          errorMessage: _signUpError,
+          isLoading: _isLoggingIn,
+          errorMessage: _loginError,
 
           onSubmit: (data) async {
             setState(() {
-              _isSigningUp = true;
-              _signUpError = null;
+              _isLoggingIn = true;
+              _loginError = null;
             });
 
             try {
-              await _authService.createAccount(data);
+              await _authService.login(data.email, data.password, data.role);
 
               if (!mounted) return;
 
               setState(() {
-                _isSigningUp = false;
+                _isLoggingIn = false;
+                _currentIndex = 0;
                 _stage = _Stage.home;
               });
-
-              _messengerKey.currentState?.showSnackBar(
-                const SnackBar(content: Text('Account created successfully 🎉')),
-              );
             } on FirebaseAuthException catch (e) {
               if (!mounted) return;
 
               setState(() {
-                _isSigningUp = false;
-                _signUpError = _authMessage(e.code);
+                _isLoggingIn = false;
+                _loginError = _loginMessage(e.code);
               });
             } catch (e) {
               if (!mounted) return;
 
               setState(() {
-                _isSigningUp = false;
-                _signUpError = 'Something went wrong. Please try again.';
+                _isLoggingIn = false;
+                _loginError = 'Something went wrong. Please try again.';
               });
             }
           },
@@ -215,7 +242,8 @@ class _MyAppState extends State<MyApp> {
 
           onSignUp: () {
             setState(() {
-              _stage = _Stage.home;
+              _signUpError = null;
+              _stage = _Stage.signUp;
             });
           },
 
@@ -245,7 +273,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      scaffoldMessengerKey: _messengerKey,
       scaffoldMessengerKey: _messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Proven',

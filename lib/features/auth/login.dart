@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: 4,
                       left: 8,
                       child: IconButton(
-                        onPressed: widget.onBack,
+                        onPressed: widget.isLoading ? null : widget.onBack,
                         icon: const Icon(
                           Icons.arrow_back_rounded,
                           color: AppColors.borderOutline,
@@ -202,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: _emailController,
                             validator: _validateEmail,
+                            enabled: !widget.isLoading,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             style: TextStyle(color: _textColor),
@@ -219,6 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: _passwordController,
                             validator: _validatePassword,
+                            enabled: !widget.isLoading,
                             obscureText: _hidePassword,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) => _submit(),
@@ -244,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: widget.onForgotPassword,
+                              onPressed: widget.isLoading ? null : widget.onForgotPassword,
                               child: Text(
                                 'Forgot password?',
                                 style: TextStyle(
@@ -321,7 +323,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(color: _secondaryTextColor),
                                 ),
                                 TextButton(
-                                  onPressed: widget.onSignUp,
+                                  onPressed: widget.isLoading ? null : widget.onSignUp,
                                   child: Text(
                                     'Sign Up',
                                     style: TextStyle(

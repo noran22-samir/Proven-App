@@ -54,8 +54,25 @@ class AuthService {
     }
   }
 
-  Future<void> login(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+  // Sign in, then make sure the chosen role matches the role saved in Firestore
+  Future<void> login(String email, String password, UserRole role) async {
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final uid = credential.user!.uid;
+    final doc = await _firestore.collection('users').doc(uid).get();
+
+    if (!doc.exists) {
+      await _auth.signOut();
+      throw FirebaseAuthException(code: 'profile-not-found');
+    }
+
+    if (doc.data()?['role'] != role.name) {
+      await _auth.signOut();
+      throw FirebaseAuthException(code: 'wrong-role');
+    }
   }
 
   Future<void> logout() => _auth.signOut();
