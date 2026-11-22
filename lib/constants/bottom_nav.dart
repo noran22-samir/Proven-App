@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:proven/core/theme/colors.dart';
+import 'package:proven/user_bottom_nav.dart';
 
 
 class FixedBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
+  final List<BottomNavModel> items ;
+
   const FixedBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    required this.items,
   });
 
   @override
@@ -24,12 +28,10 @@ class FixedBottomNavBar extends StatelessWidget {
           height: 64,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-               _item(0, Icons.layers, 'Projects',),
-              _item(1, Icons.auto_awesome, 'Ai Matchmaker'),
-              // _item(2, Icons.assignment_outlined, 'Requests'),
-              _item(3, Icons.account_circle_outlined, 'Profile'),
-            ],
+            children: List.generate(
+              items.length,
+              (index) => _item(index, items[index].icon, items[index].title),
+            )
           ),
         ),
       ),
