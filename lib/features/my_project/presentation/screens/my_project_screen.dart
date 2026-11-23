@@ -51,9 +51,11 @@ class MyProjectsScreen extends StatelessWidget {
           if (cubit.selectedIndex == 1) {
             displayedProjects = cubit.projects.where((p) => p['status'] == 'Pending').toList();
           } else if (cubit.selectedIndex == 2) {
-            displayedProjects = cubit.projects.where((p) => p['status'] == 'Approved').toList();
+            displayedProjects = cubit.projects.where((p) => p['status'] == 'Pending').toList();
           } else if (cubit.selectedIndex == 3) {
-            displayedProjects = cubit.projects.where((p) => p['status'] == 'Rejected').toList();
+            displayedProjects = cubit.projects.where((p) => p['status'] == 'Approved').toList();
+          }else if (cubit.selectedIndex == 4){
+            displayedProjects = cubit.projects.where((p)=> p['status'] == 'Rejected').toList(); 
           }
 
           return Scaffold(

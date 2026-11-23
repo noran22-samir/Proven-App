@@ -62,14 +62,6 @@ class ProjectCard extends StatelessWidget {
                   children: [
                     const Padding(
                       padding: EdgeInsets.all(6),
-                      child: Text(
-                        'Cover',
-                        style: TextStyle(
-                          color: AppColors.onTertiaryContainer,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                     ),
                     Center(
                       child: Icon(
