@@ -6,6 +6,9 @@ class PurchaseRequestCubit extends Cubit<PurchaseRequestState> {
 
   String totalEarnings = '21,450';
   String totalRequests = '6';
+ 
+ // Currently selected filter: 'All Contracts', 'Paid Only', or 'Completed Only'
+  String selectedFilter = 'All Contract';
 
   List contracts = [
     {
@@ -40,6 +43,11 @@ class PurchaseRequestCubit extends Cubit<PurchaseRequestState> {
       'amount': '5,400 EGP',
     },
   ];
+
+  void changeFilter(String filter){
+    selectedFilter = filter;
+    emit(PurchaseRequestSuccess());
+  }
 
   void selectContract(int index) {
     emit(PurchaseRequestSuccess());
