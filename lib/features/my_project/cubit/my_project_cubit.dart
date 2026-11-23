@@ -51,5 +51,40 @@ class MyProjectCubit extends Cubit<MyProjectState> {
       projects.removeWhere((project) => project['id'] == projectId);
       emit(MyProjectSuccess());
     }
+
+    //Edit the project Data and update it
+    void updateProject({
+      required  String projectId,
+      required  String newTitle,
+      required  String newCategory,
+      required  String newPrice,
+    })
+    { for (var project in projects){
+      if (project['id']== projectId){
+        project['title'] == newTitle;
+        project['category'] == newCategory;
+        project['price'] == newPrice;
+
+        if (project['status'] == 'Rejected'){
+          project['status'] == 'Pending';
+          project.remove('reason');
+        }
+        break;
+      }
+    }
+    emit(MyProjectSuccess());
+
+    }
+  // To resend the rejected project again 
+    void resubmitProject(String projectId){
+      for(var project in projects){
+        if(project['id'] == projectId){
+          project['status'] == 'Pending';
+          project.remove('reason');
+          break;
+        }
+      }
+      emit(MyProjectSuccess());
+    }
   
   }
