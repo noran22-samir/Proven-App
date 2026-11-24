@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proven/core/theme/colors.dart';
+import 'package:proven/features/company/project_details/test.dart';
 
 class MarketPage extends StatefulWidget {
   const MarketPage({super.key});
@@ -61,7 +62,6 @@ class _MarketPageState extends State<MarketPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               Container(
                 decoration: BoxDecoration(color: AppColors.primaryContainer),
                 width: double.infinity,
@@ -268,7 +268,9 @@ class _MarketPageState extends State<MarketPage> {
                             ),
                             const SizedBox(height: 10),
                             Container(
-                              decoration: BoxDecoration(color: AppColors.inverseSurface),
+                              decoration: BoxDecoration(
+                                color: AppColors.inverseSurface,
+                              ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -282,7 +284,7 @@ class _MarketPageState extends State<MarketPage> {
                                       borderRadius: BorderRadius.circular(5),
                                       color: AppColors.primaryContainer,
                                     ),
-                                                
+
                                     child: Row(
                                       children: [
                                         Padding(
@@ -398,7 +400,7 @@ class _MarketPageState extends State<MarketPage> {
                                   fontSize: 10,
                                 ),
                               ),
-                               Icon(
+                              Icon(
                                 Icons.verified,
                                 size: 14,
                                 color: Colors.lightBlueAccent,
@@ -413,7 +415,7 @@ class _MarketPageState extends State<MarketPage> {
                               color: AppColors.inversePrimary,
                             ),
                           ),
-                           SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Center(
                             child: Text(
                               project['tag'],
@@ -423,7 +425,7 @@ class _MarketPageState extends State<MarketPage> {
                               ),
                             ),
                           ),
-                           Spacer(),
+                          Spacer(),
                           Text(
                             project['title'],
                             style: GoogleFonts.ibmPlexSans(
@@ -442,7 +444,7 @@ class _MarketPageState extends State<MarketPage> {
                               fontSize: 10,
                             ),
                           ),
-                           SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -466,17 +468,30 @@ class _MarketPageState extends State<MarketPage> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                width: 26,
-                                height: 26,
-                                decoration: BoxDecoration(
-                                  color: AppColors.tertiary,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12,
-                                  color: AppColors.onPrimary,
+
+                              InkWell(
+                                borderRadius: BorderRadius.circular(6),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProjectDetailsPage(project: project),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.tertiary,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 12,
+                                    color: AppColors.onPrimary,
+                                  ),
                                 ),
                               ),
                             ],
