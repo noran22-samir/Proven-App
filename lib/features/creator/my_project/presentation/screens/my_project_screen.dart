@@ -88,10 +88,10 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       // A light, prominent blue when selected, and a subtle, dark background when not selected.
-                      color: isSelected ? AppColors.primaryContainer : AppColors.tertiaryContainer.withOpacity(0.5),
+                      color: isSelected ? AppColors.primaryContainer : AppColors.tertiaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: isSelected ? AppColors.inversePrimary : AppColors.outline.withOpacity(0.3),
+                        color: isSelected ? AppColors.inversePrimary : AppColors.outline.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -121,7 +121,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.white.withOpacity(0.2)
+                                ? Colors.white.withValues(alpha: 0.2)
                                 : AppColors.tertiary,
                             borderRadius: BorderRadius.circular(10),
                           ),

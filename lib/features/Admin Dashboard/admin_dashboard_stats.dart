@@ -85,7 +85,7 @@ class _StatCard extends StatelessWidget {
             helper,
             style: TextStyle(
               fontSize: 8.5,
-              color: color.withOpacity(.72),
+              color: color.withValues(alpha: 0.72),
               fontWeight: FontWeight.w600,
             ),
           ),

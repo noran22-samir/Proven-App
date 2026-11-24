@@ -35,10 +35,10 @@ class ProjectCard extends StatelessWidget {
         // The card background is dark and consistent with the theme defined in the `colors.dart` file.
         color: AppColors.tertiary,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -157,7 +157,7 @@ class ProjectCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(
               height: 1,
-              color: AppColors.outline.withOpacity(0.2),
+              color: AppColors.outline.withValues(alpha: 0.2),
             ),
           ),
           // Views, queries, and edit and delete buttons
