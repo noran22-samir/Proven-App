@@ -168,19 +168,19 @@ class _MarketPageState extends State<MarketPage> {
                             ),
                           ),
                         ),
-                        const Spacer(),
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor: AppColors.onPrimaryFixed,
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.notifications_none_outlined,
-                              color: AppColors.primaryFixedDim,
-                              size: 18,
-                            ),
-                          ),
-                        ),
+                        //  
+                        // CircleAvatar(
+                        //   radius: 18,
+                        //   backgroundColor: AppColors.onPrimaryFixed,
+                        //   child: IconButton(
+                        //     onPressed: () {},
+                        //     icon: Icon(
+                        //       Icons.notifications_none_outlined,
+                        //       color: AppColors.primaryFixedDim,
+                        //       size: 18,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 15),
