@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:proven/core/theme/colors.dart';
 import 'package:proven/features/project_details/Project_Details.dart';
 
-
-
 class MarketPage extends StatefulWidget {
   const MarketPage({super.key});
 
@@ -14,9 +12,12 @@ class MarketPage extends StatefulWidget {
 
 class _MarketPageState extends State<MarketPage> {
   int selectedCategoryIndex = 0;
+  String searchQuery = '';
+  String sortBy = 'default'; // default | low | high
+  final TextEditingController searchController = TextEditingController();
 
   final List<String> categories = [
-    'All (24)',
+    'All',
     'Healthcare',
     'E-Commerce',
     'EdTech',
@@ -24,7 +25,7 @@ class _MarketPageState extends State<MarketPage> {
     'Chat bots',
   ];
 
-  final List projectsList = [
+  final List<Map<String, String>> projectsList = [
     {
       'title': 'ClinicFlow',
       'category': 'Healthcare',
@@ -56,7 +57,72 @@ class _MarketPageState extends State<MarketPage> {
   ];
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  int _priceOf(Map<String, String> p) =>
+      int.parse(p['price']!.replaceAll(RegExp(r'[^0-9]'), ''));
+
+  List<Map<String, String>> get filteredProjects {
+    final selected = categories[selectedCategoryIndex];
+    final query = searchQuery.trim().toLowerCase();
+
+    final result = projectsList.where((p) {
+      final matchesCategory = selected == 'All' || p['category'] == selected;
+      final matchesSearch =
+          query.isEmpty ||
+          p['title']!.toLowerCase().contains(query) ||
+          p['desc']!.toLowerCase().contains(query) ||
+          p['category']!.toLowerCase().contains(query);
+      return matchesCategory && matchesSearch;
+    }).toList();
+
+    if (sortBy == 'low') {
+      result.sort((a, b) => _priceOf(a).compareTo(_priceOf(b)));
+    } else if (sortBy == 'high') {
+      result.sort((a, b) => _priceOf(b).compareTo(_priceOf(a)));
+    }
+    return result;
+  }
+
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.primaryContainer,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final o in const [
+              ['default', 'Default'],
+              ['low', 'Price: Low to High'],
+              ['high', 'Price: High to Low'],
+            ])
+              ListTile(
+                title: Text(
+                  o[1],
+                  style: GoogleFonts.ibmPlexSans(color: AppColors.onPrimary),
+                ),
+                trailing: sortBy == o[0]
+                    ? Icon(Icons.check, color: AppColors.inversePrimary)
+                    : null,
+                onTap: () {
+                  setState(() => sortBy = o[0]);
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final projects = filteredProjects;
+
     return Scaffold(
       backgroundColor: AppColors.onBackground,
       body: SingleChildScrollView(
@@ -133,6 +199,9 @@ class _MarketPageState extends State<MarketPage> {
                           child: SizedBox(
                             height: 40,
                             child: SearchBar(
+                              controller: searchController,
+                              onChanged: (value) =>
+                                  setState(() => searchQuery = value),
                               backgroundColor: WidgetStatePropertyAll(
                                 AppColors.onBackground,
                               ),
@@ -147,6 +216,22 @@ class _MarketPageState extends State<MarketPage> {
                                 Icons.search,
                                 color: AppColors.inversePrimary,
                               ),
+                              trailing: [
+                                if (searchQuery.isNotEmpty)
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    icon: Icon(
+                                      Icons.close,
+                                      size: 18,
+                                      color: AppColors.inversePrimary,
+                                    ),
+                                    onPressed: () {
+                                      searchController.clear();
+                                      setState(() => searchQuery = '');
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                         ),
@@ -163,7 +248,7 @@ class _MarketPageState extends State<MarketPage> {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            onPressed: () {},
+                            onPressed: _showSortSheet,
                             icon: Icon(
                               Icons.filter_list,
                               size: 30,
@@ -204,7 +289,9 @@ class _MarketPageState extends State<MarketPage> {
                           ),
                           child: Center(
                             child: Text(
-                              categories[index],
+                              index == 0
+                                  ? 'All (${projectsList.length})'
+                                  : categories[index],
                               style: GoogleFonts.ibmPlexSans(
                                 color: AppColors.onPrimary,
                                 fontSize: 12,
@@ -224,7 +311,6 @@ class _MarketPageState extends State<MarketPage> {
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Divider(),
               ),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: Container(
@@ -286,7 +372,6 @@ class _MarketPageState extends State<MarketPage> {
                                       borderRadius: BorderRadius.circular(5),
                                       color: AppColors.primaryContainer,
                                     ),
-
                                     child: Row(
                                       children: [
                                         Padding(
@@ -300,7 +385,7 @@ class _MarketPageState extends State<MarketPage> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Icon(
                                           Icons.arrow_forward,
                                           size: 10,
@@ -347,7 +432,7 @@ class _MarketPageState extends State<MarketPage> {
                             border: Border.all(color: AppColors.borderOutline),
                           ),
                           child: Text(
-                            "4 Available",
+                            "${projects.length} Available",
                             style: GoogleFonts.ibmPlexSans(
                               color: AppColors.inversePrimary,
                               fontSize: 10,
@@ -367,137 +452,160 @@ class _MarketPageState extends State<MarketPage> {
                 ),
               ),
               const SizedBox(height: 10),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: projectsList.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemBuilder: (context, index) {
-                    final project = projectsList[index];
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.borderOutline),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                project['category'],
-                                style: GoogleFonts.ibmPlexSans(
-                                  color: AppColors.inversePrimary,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Icon(
-                                Icons.verified,
-                                size: 14,
-                                color: Colors.lightBlueAccent,
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Center(
-                            child: Icon(
-                              Icons.lock_outline,
-                              size: 28,
-                              color: AppColors.inversePrimary,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Center(
-                            child: Text(
-                              project['tag'],
-                              style: GoogleFonts.ibmPlexSans(
-                                color: AppColors.inversePrimary,
-                                fontSize: 9,
-                              ),
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            project['title'],
+                child: projects.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Text(
+                            "No projects found",
                             style: GoogleFonts.ibmPlexSans(
-                              color: AppColors.onPrimary,
-                              fontWeight: FontWeight.bold,
+                              color: AppColors.inversePrimary,
                               fontSize: 14,
                             ),
                           ),
-                          SizedBox(height: 2),
-                          Text(
-                            project['desc'],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.ibmPlexSans(
-                              color: AppColors.inversePrimary,
-                              fontSize: 10,
+                        ),
+                      )
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: projects.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.8,
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "PRICE",
+                        itemBuilder: (context, index) {
+                          final project = projects[index];
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppColors.borderOutline,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      project['category']!,
+                                      style: GoogleFonts.ibmPlexSans(
+                                        color: AppColors.inversePrimary,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.verified,
+                                      size: 14,
+                                      color: Colors.lightBlueAccent,
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Center(
+                                  child: Icon(
+                                    Icons.lock_outline,
+                                    size: 28,
+                                    color: AppColors.inversePrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Center(
+                                  child: Text(
+                                    project['tag']!,
                                     style: GoogleFonts.ibmPlexSans(
                                       color: AppColors.inversePrimary,
-                                      fontSize: 8,
+                                      fontSize: 9,
                                     ),
                                   ),
-                                  Text(
-                                    project['price'],
-                                    style: GoogleFonts.ibmPlexSans(
-                                      color: AppColors.onPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: AppColors.tertiary,
-                                  borderRadius: BorderRadius.circular(6),
-                                 border: Border.all(color: AppColors.borderOutline) 
                                 ),
-                                child: IconButton(
-                                  tooltip: "Go to Project Details",
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProjectDetails(),
+                                const Spacer(),
+                                Text(
+                                  project['title']!,
+                                  style: GoogleFonts.ibmPlexSans(
+                                    color: AppColors.onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  project['desc']!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.ibmPlexSans(
+                                    color: AppColors.inversePrimary,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "PRICE",
+                                          style: GoogleFonts.ibmPlexSans(
+                                            color: AppColors.inversePrimary,
+                                            fontSize: 8,
+                                          ),
+                                        ),
+                                        Text(
+                                          project['price']!,
+                                          style: GoogleFonts.ibmPlexSans(
+                                            color: AppColors.onPrimary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.tertiary,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: AppColors.borderOutline,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                  icon: Icon(Icons.arrow_forward_rounded),
+                                      child: IconButton(
+                                        tooltip: "Go to Project Details",
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProjectDetails(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.arrow_forward_rounded,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
               const SizedBox(height: 30),
             ],
