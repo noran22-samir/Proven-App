@@ -3,7 +3,7 @@ import 'package:proven/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
-import 'package:proven/features/marketPlace/market_page.dart';
+import 'package:proven/features/company/marketPlace/market_page.dart';
 import 'package:proven/features/onBoarding/on_boarding.dart';
 import 'package:proven/features/splash/splash_screen.dart';
 import 'package:proven/features/auth/auth_flow.dart';
