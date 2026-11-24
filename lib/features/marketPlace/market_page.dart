@@ -168,7 +168,7 @@ class _MarketPageState extends State<MarketPage> {
                             ),
                           ),
                         ),
-                        //  
+                        //
                         // CircleAvatar(
                         //   radius: 18,
                         //   backgroundColor: AppColors.onPrimaryFixed,
