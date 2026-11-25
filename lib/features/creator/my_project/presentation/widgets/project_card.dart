@@ -1,216 +1,256 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/colors.dart';
 
-
 class ProjectCard extends StatelessWidget {
-  final String status;
-  final Color statusColor;
   final String title;
-  final String description;
   final String category;
   final String price;
-  final String views;
-  final String inquiries;
-  final String? imageUrl; // To pass the card image dynamically
+  final String status;
+  final Color statusColor;
+  final Color statusBgColor;
+  final String subText;
+  final Color? subTextColor;
+  final IconData coverIcon;
+  final String? rejectionReason;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onResubmit;
 
   const ProjectCard({
     super.key,
-    required this.status,
-    required this.statusColor,
     required this.title,
-    required this.description,
     required this.category,
     required this.price,
-    required this.views,
-    required this.inquiries,
-    this.imageUrl,
+    required this.status,
+    required this.statusColor,
+    required this.statusBgColor,
+    required this.subText,
+    this.subTextColor,
+    required this.coverIcon,
+    this.rejectionReason,
+    this.onEdit,
+    this.onDelete,
+    this.onResubmit,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        // The card background is dark and consistent with the theme defined in the `colors.dart` file.
-        color: AppColors.tertiary,
+        color: AppColors.tertiaryContainer.withOpacity(0.45),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: AppColors.outline.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Part for the image or the dedicated space above the card
-          Stack(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Cover Box on the left side
               Container(
-                height: 180,
-                width: double.infinity,
+                width: 76,
+                height: 76,
                 decoration: BoxDecoration(
-                  color: AppColors.tertiaryContainer,
+                  color: AppColors.tertiary.withOpacity(0.85),
                   borderRadius: BorderRadius.circular(14),
-                  image: imageUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(imageUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+                  border: Border.all(color: AppColors.outline.withOpacity(0.15)),
                 ),
-                child: imageUrl == null
-                    ? Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppColors.onTertiaryContainer,
-                        ),
-                      )
-                    : null,
-              ),
-              // Colored status badge (Approved, Pending...)
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const ContainerDot(),
-                      const SizedBox(width: 6),
-                      Text(
-                        status,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                child: Stack(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(6),
+                    ),
+                    Center(
+                      child: Icon(
+                        coverIcon,
+                        color: AppColors.inversePrimary,
+                        size: 28,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Right side details (Title, Status, Category, Price)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Status Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: statusBgColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: statusColor.withOpacity(0.4)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                status,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Category and Price Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryContainer.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.inversePrimary.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            category,
+                            style: const TextStyle(
+                              color: AppColors.inversePrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          price,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          // Category and price of the project
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.tertiaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: AppColors.onTertiaryContainer,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(
-                price,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Title of the project
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          // Description of the project
-          Text(
-            description,
-            style: TextStyle(
-              color: AppColors.onTertiaryContainer,
-              fontSize: 13,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Divider(
-              height: 1,
-              color: AppColors.outline.withOpacity(0.2),
-            ),
-          ),
-          // Views, queries, and edit and delete buttons
+          const SizedBox(height: 12),
+          // Subtext and Action Buttons Row (Edit & Delete)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$views  ·  $inquiries',
+                subText,
                 style: TextStyle(
-                  color: AppColors.onTertiaryContainer,
+                  color: subTextColor ?? AppColors.onTertiaryContainer,
                   fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      size: 18,
-                      color: AppColors.onTertiaryContainer,
-                    ),
-                    onPressed: () {},
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                    icon: const Icon(Icons.edit_outlined, color: AppColors.inversePrimary, size: 18),
+                    onPressed: onEdit,
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      size: 18,
-                      color: Colors.redAccent,
-                    ),
-                    onPressed: () {},
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 18),
+                    onPressed: onDelete,
                   ),
                 ],
               ),
             ],
           ),
+          // Rejection Reason Box (Appears only for rejected projects as in the image)
+          if (rejectionReason != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.tertiary.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Reason: $rejectionReason',
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.tertiaryContainer,
+                        foregroundColor: AppColors.inversePrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: AppColors.inversePrimary.withOpacity(0.3)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onPressed: onResubmit,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text(
+                        'Edit & Resubmit',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
-      ),
-    );
-  }
-}
-
-// A small helper for the white status dot inside the badge
-class ContainerDot extends StatelessWidget {
-  const ContainerDot({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
       ),
     );
   }

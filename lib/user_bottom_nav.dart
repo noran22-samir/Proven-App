@@ -19,10 +19,10 @@ class BottomNavModel {
       title: 'Matchmaker',
       icon: Icons.auto_awesome,
     ),
-    BottomNavModel(
-      title: 'Orders',
-      icon: Icons.receipt_long_outlined,
-    ),
+    // BottomNavModel(
+    //   title: 'Orders',
+    //   icon: Icons.receipt_long_outlined,
+    // ),
     BottomNavModel(
       title: 'Profile',
       icon: Icons.person_outline,
@@ -48,24 +48,24 @@ class BottomNavModel {
     ),
   ];
 
-  static const List<BottomNavModel> adminBottomNavItems = [
-    BottomNavModel(
-      title: 'Dashboard',
-      icon: Icons.dashboard_outlined,
-    ),
-    BottomNavModel(
-      title: 'Projects',
-      icon: Icons.folder_outlined,
-    ),
-    BottomNavModel(
-      title: 'Orders',
-      icon: Icons.receipt_long_outlined,
-    ),
-    BottomNavModel(
-      title: 'Profile',
-      icon: Icons.person_outline,
-    ),
-  ];
+  // static const List<BottomNavModel> adminBottomNavItems = [
+  //   BottomNavModel(
+  //     title: 'Dashboard',
+  //     icon: Icons.dashboard_outlined,
+  //   ),
+  //   BottomNavModel(
+  //     title: 'Projects',
+  //     icon: Icons.folder_outlined,
+  //   ),
+  //   BottomNavModel(
+  //     title: 'Orders',
+  //     icon: Icons.receipt_long_outlined,
+  //   ),
+  //   BottomNavModel(
+  //     title: 'Profile',
+  //     icon: Icons.person_outline,
+  //   ),
+  // ];
 
   static List<BottomNavModel>? get userBottomNavItems => null;
 }
