@@ -11,7 +11,9 @@ import 'package:proven/features/auth/auth_service.dart';
 import 'package:proven/features/auth/email_verification_banner.dart';
 import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/user_bottom_nav.dart' show BottomNavModel;
-
+import 'package:proven/features/company/company_shell.dart';
+import 'package:proven/features/creator/creator_shell.dart';
+import 'package:proven/features/Admin Dashboard/Admin_Dashboard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -103,26 +105,37 @@ class _MyAppState extends State<MyApp> {
   // homes: one per role
   // ---------------------------------------------------------------------
 
-  Widget _buildHome() {
-    switch (_role) {
-      case UserRole.admin:
-        // TODO: replace with the real admin screens
-        return _AdminHomePlaceholder(
-          key: const ValueKey('adminHome'),
-          onLogout: _logout,
-        );
-      case UserRole.creator:
-      // TODO: give the company its own screens when they are ready
-      case UserRole.company:
-      case null:
-        return _userHome();
-    }
-  }
+Widget _buildHome() {
+  switch (_role) {
+    case UserRole.admin:
+return AdminDashboard(
+  key: const ValueKey('adminHome'),
+  onLogout: _logout,
+);
 
+    case UserRole.creator:
+      return CreatorShell(
+        key: const ValueKey('creatorHome'),
+        onLogout: _logout,
+      );
+
+    case UserRole.company:
+      return CompanyShell(
+        key: const ValueKey('companyHome'),
+        onLogout: _logout,
+      );
+
+    case null:
+      return const Scaffold(
+        body: Center(
+          child: Text('Invalid user role'),
+        ),
+      );
+  }
+}
   Widget _userHome() {
     return Scaffold(
       key: const ValueKey('home'),
-      // old accounts that never verified their email still see a banner
       body: Column(
         children: [
           if (!_authService.isEmailVerified)
@@ -137,7 +150,8 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
       bottomNavigationBar: FixedBottomNavBar(
-        items: BottomNavModel.userBottomNavItems,
+        items: BottomNavModel.userBottomNavItems ??
+            const <BottomNavModel>[],
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
       ),
