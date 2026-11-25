@@ -13,7 +13,7 @@ import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/user_bottom_nav.dart' show BottomNavModel;
 import 'package:proven/features/company/company_shell.dart';
 import 'package:proven/features/creator/creator_shell.dart';
-
+import 'package:proven/features/Admin Dashboard/Admin_Dashboard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -107,11 +107,11 @@ class _MyAppState extends State<MyApp> {
 
 Widget _buildHome() {
   switch (_role) {
-    case UserRole.company:
-      return CompanyShell(
-        key: const ValueKey('companyHome'),
-        onLogout: _logout,
-      );
+    case UserRole.admin:
+return AdminDashboard(
+  key: const ValueKey('adminHome'),
+  onLogout: _logout,
+);
 
     case UserRole.creator:
       return CreatorShell(
@@ -119,9 +119,9 @@ Widget _buildHome() {
         onLogout: _logout,
       );
 
-    case UserRole.admin:
-      return _AdminHomePlaceholder(
-        key: const ValueKey('adminHome'),
+    case UserRole.company:
+      return CompanyShell(
+        key: const ValueKey('companyHome'),
         onLogout: _logout,
       );
 
@@ -136,7 +136,6 @@ Widget _buildHome() {
   Widget _userHome() {
     return Scaffold(
       key: const ValueKey('home'),
-      // old accounts that never verified their email still see a banner
       body: Column(
         children: [
           if (!_authService.isEmailVerified)

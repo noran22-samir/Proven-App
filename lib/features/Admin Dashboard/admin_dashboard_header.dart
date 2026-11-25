@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 
 class AdminDashboardHeader extends StatelessWidget {
-  const AdminDashboardHeader({super.key});
+    const AdminDashboardHeader({
+    super.key,
+    required this.onLogout,
+  });
+
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -40,31 +45,47 @@ class AdminDashboardHeader extends StatelessWidget {
             ],
           ),
         ),
-        const _CircleButton(Icons.more_horiz_rounded, AppColors.canvasBackground),
-        const SizedBox(width: 8),
-        const _CircleButton(Icons.notifications_none_rounded, Color(0xFFFFF0F0)),
+
+_CircleButton(
+  Icons.logout_rounded,
+  AppColors.canvasBackground,
+  onTap: onLogout,
+),
       ],
     );
   }
 }
 
 class _CircleButton extends StatelessWidget {
-  const _CircleButton(this.icon, this.background);
+  const _CircleButton(
+    this.icon,
+    this.background, {
+    this.onTap,
+  });
 
   final IconData icon;
   final Color background;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: background,
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.borderOutline),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: background,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.borderOutline),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: AppColors.textPrimary,
+        ),
       ),
-      child: Icon(icon, size: 18, color: AppColors.textPrimary),
     );
   }
 }

@@ -7,12 +7,16 @@ import 'order_details_sheet.dart';
 import 'project_card.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+  const AdminDashboard({
+    super.key,
+    required this.onLogout,
+  });
+
+  final VoidCallback onLogout;
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
-
 class _AdminDashboardState extends State<AdminDashboard> {
   int selectedFilter = 0;
 
@@ -62,30 +66,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
             return SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 28),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AdminDashboardHeader(),
-                      const SizedBox(height: 18),
-                      const AdminDashboardStats(),
-                      const SizedBox(height: 18),
-                      _buildFilters(),
-                      const SizedBox(height: 14),
-                      ...projects.map(
-                        (project) => ProjectCard(
-                          project: project,
-                          onTap: () => _showOrderDetails(project),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const _FooterNote(),
-                    ],
-                  ),
-                ),
-              ),
+child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    AdminDashboardHeader(
+      onLogout: widget.onLogout,
+    ),
+    const SizedBox(height: 18),
+    const AdminDashboardStats(),
+    const SizedBox(height: 18),
+    _buildFilters(),
+    const SizedBox(height: 14),
+    ...projects.map(
+      (project) => ProjectCard(
+        project: project,
+        onTap: () => _showOrderDetails(project),
+      ),
+    ),
+    const SizedBox(height: 10),
+    const _FooterNote(),
+  ],
+),
             );
           },
         ),
