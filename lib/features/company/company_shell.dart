@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/user_bottom_nav.dart';
 import 'package:proven/features/company/marketPlace/market_page.dart';
-
+import 'package:proven/features/company/profile/company_profile.dart';
 class CompanyShell extends StatefulWidget {
   const CompanyShell({
     super.key,
@@ -19,16 +19,12 @@ class _CompanyShellState extends State<CompanyShell> {
   int _currentIndex = 0;
 
   late final List<Widget> _pages = [
-    const MarketPage(),
-    const Center(child: Text('AI Matchmaker')),
-    const Center(child: Text('Orders')),
-    Center(
-      child: ElevatedButton(
-        onPressed: widget.onLogout,
-        child: const Text('Logout'),
-      ),
-    ),
-  ];
+  const MarketPage(),
+  const Center(child: Text('AI Matchmaker')),
+  const Center(child: Text('Orders')),
+CompanyProfile(
+  onLogout: widget.onLogout,
+),];
 
   @override
   Widget build(BuildContext context) {
