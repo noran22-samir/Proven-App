@@ -3,7 +3,8 @@ import 'package:proven/constants/bottom_nav.dart';
 import 'package:proven/user_bottom_nav.dart';
 import 'package:proven/features/creator/Add Project/add_project_page.dart';
 import 'package:proven/features/creator/my_project/presentation/screens/my_project_screen.dart';
-
+import 'package:proven/features/creator/profile/test.dart';
+import 'package:proven/features/creator/purchase_requests/presentation/screens/purchase_requests_screen.dart';
 class CreatorShell extends StatefulWidget {
   const CreatorShell({
     super.key,
@@ -22,12 +23,9 @@ class _CreatorShellState extends State<CreatorShell> {
   late final List<Widget> _pages = [
     const MyProjectsScreen(),
     const AddProjectPage(),
-    const Center(child: Text('Purchase Requests')),
-    Center(
-      child: ElevatedButton(
-        onPressed: widget.onLogout,
-        child: const Text('Logout'),
-      ),
+    const PurchaseRequestsScreen(),
+    ProfilePage(
+      onLogout: widget.onLogout,
     ),
   ];
 

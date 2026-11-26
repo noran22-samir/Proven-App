@@ -21,7 +21,7 @@ class _CompanyShellState extends State<CompanyShell> {
   late final List<Widget> _pages = [
   const MarketPage(),
   const Center(child: Text('AI Matchmaker')),
-  const Center(child: Text('Orders')),
+  // const Center(child: Text('Orders')),
 CompanyProfile(
   onLogout: widget.onLogout,
 ),];

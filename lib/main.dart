@@ -133,6 +133,7 @@ return AdminDashboard(
       );
   }
 }
+  // ignore: unused_element
   Widget _userHome() {
     return Scaffold(
       key: const ValueKey('home'),
@@ -240,26 +241,3 @@ return AdminDashboard(
   }
 }
 
-// temporary screen for the admin until the real admin screens exist
-class _AdminHomePlaceholder extends StatelessWidget {
-  const _AdminHomePlaceholder({super.key, required this.onLogout});
-
-  final VoidCallback onLogout;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin'),
-        actions: [
-          IconButton(
-            onPressed: onLogout,
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-          ),
-        ],
-      ),
-      body: const Center(child: Text('Admin dashboard (coming soon)')),
-    );
-  }
-}
