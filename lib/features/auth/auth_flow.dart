@@ -15,8 +15,6 @@ enum _AuthStage {
   login,
 }
 
-// All the auth screens and their logic live here.
-// main.dart only needs: AuthFlow(authService, onFinished)
 class AuthFlow extends StatefulWidget {
   const AuthFlow({
     super.key,
@@ -27,9 +25,7 @@ class AuthFlow extends StatefulWidget {
 
   final AuthService authService;
 
-  // called when the user is fully logged in and the profile is complete.
   // It gives the role (creator / company / admin) so the app can show the
-  // right home screen.
   final ValueChanged<UserRole> onFinished;
 
   // a signed in user who did not finish sign up: continue from where he stopped

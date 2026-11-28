@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_theme.dart';
+import 'add_project_palette.dart';
 
 class AddProjectTopBar extends StatelessWidget {
   const AddProjectTopBar({super.key});
