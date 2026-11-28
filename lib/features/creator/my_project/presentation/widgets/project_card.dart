@@ -1,4 +1,6 @@
+// المسار: lib/features/creator/my_project/presentation/widgets/project_card.dart   (بدّل الملف كله)
 import 'package:flutter/material.dart';
+import 'package:proven/features/projects/project_cover.dart';
 import '../../../../../core/theme/colors.dart';
 
 class ProjectCard extends StatelessWidget {
@@ -11,6 +13,7 @@ class ProjectCard extends StatelessWidget {
   final String subText;
   final Color? subTextColor;
   final IconData coverIcon;
+  final String? imageUrl;
   final String? rejectionReason;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -27,6 +30,7 @@ class ProjectCard extends StatelessWidget {
     required this.subText,
     this.subTextColor,
     required this.coverIcon,
+    this.imageUrl,
     this.rejectionReason,
     this.onEdit,
     this.onDelete,
@@ -39,9 +43,9 @@ class ProjectCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.tertiaryContainer.withOpacity(0.45),
+        color: AppColors.tertiaryContainer.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline.withOpacity(0.25)),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,32 +53,19 @@ class ProjectCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cover Box on the left side
+              // الصورة (أو أيقونة لو مفيش صورة)
               Container(
                 width: 76,
                 height: 76,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: AppColors.tertiary.withOpacity(0.85),
+                  color: AppColors.tertiary.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.outline.withOpacity(0.15)),
+                  border: Border.all(color: AppColors.outline.withValues(alpha: 0.15)),
                 ),
-                child: Stack(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(6),
-                    ),
-                    Center(
-                      child: Icon(
-                        coverIcon,
-                        color: AppColors.inversePrimary,
-                        size: 28,
-                      ),
-                    ),
-                  ],
-                ),
+                child: ProjectCover(url: imageUrl, icon: coverIcon, thumbWidth: 300),
               ),
               const SizedBox(width: 12),
-              // Right side details (Title, Status, Category, Price)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,13 +85,13 @@ class ProjectCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // Status Badge
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: statusBgColor,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: statusColor.withOpacity(0.4)),
+                            border: Border.all(color: statusColor.withValues(alpha: 0.4)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -128,26 +119,31 @@ class ProjectCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    // Category and Price Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer.withOpacity(0.6),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.inversePrimary.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            category,
-                            style: const TextStyle(
-                              color: AppColors.inversePrimary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                  color: AppColors.inversePrimary.withValues(alpha: 0.3)),
+                            ),
+                            child: Text(
+                              category,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.inversePrimary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           price,
                           style: const TextStyle(
@@ -164,7 +160,6 @@ class ProjectCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // Subtext and Action Buttons Row (Edit & Delete)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -181,7 +176,8 @@ class ProjectCard extends StatelessWidget {
                   IconButton(
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(8),
-                    icon: const Icon(Icons.edit_outlined, color: AppColors.inversePrimary, size: 18),
+                    icon: const Icon(Icons.edit_outlined,
+                        color: AppColors.inversePrimary, size: 18),
                     onPressed: onEdit,
                   ),
                   const SizedBox(width: 8),
@@ -195,22 +191,23 @@ class ProjectCard extends StatelessWidget {
               ),
             ],
           ),
-          // Rejection Reason Box (Appears only for rejected projects as in the image)
           if (rejectionReason != null) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.tertiary.withOpacity(0.9),
+                color: AppColors.tertiary.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 16),
+                      const Icon(Icons.warning_amber_rounded,
+                          color: Colors.redAccent, size: 16),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -233,13 +230,14 @@ class ProjectCard extends StatelessWidget {
                         foregroundColor: AppColors.inversePrimary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          side: BorderSide(color: AppColors.inversePrimary.withOpacity(0.3)),
+                          side: BorderSide(
+                              color: AppColors.inversePrimary.withValues(alpha: 0.3)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                       onPressed: onResubmit,
-                      icon: const Icon(Icons.refresh, size: 16),
+                      icon: const Icon(Icons.edit_note_rounded, size: 18),
                       label: const Text(
                         'Edit & Resubmit',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),

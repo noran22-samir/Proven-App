@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_theme.dart';
+import 'add_project_palette.dart';
 
 class AddProjectTopBar extends StatelessWidget {
   const AddProjectTopBar({super.key});
@@ -37,7 +37,7 @@ class ReviewNotice extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.amberSurface,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.amber.withOpacity(.48)),
+        border: Border.all(color: AppColors.amber.withValues(alpha: 0.48)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +47,7 @@ class ReviewNotice extends StatelessWidget {
           Expanded(
             child: Text(
               'Your project will be reviewed by the admin before it appears.',
-              style: TextStyle(color: AppColors.amber.withOpacity(.92), height: 1.45, fontSize: 13),
+              style: TextStyle(color: AppColors.amber.withValues(alpha: 0.92), height: 1.45, fontSize: 13),
             ),
           ),
         ],
@@ -65,7 +65,7 @@ class FormSectionHeading extends StatelessWidget {
       children: [
         const Text('GENERAL INFORMATION', style: TextStyle(color: AppColors.muted, letterSpacing: 1.5, fontWeight: FontWeight.w700, fontSize: 13)),
         const Spacer(),
-        Text('* Required fields', style: TextStyle(color: AppColors.muted.withOpacity(.8), fontSize: 11)),
+        Text('* Required fields', style: TextStyle(color: AppColors.muted.withValues(alpha: 0.8), fontSize: 11)),
       ],
     );
   }
@@ -100,7 +100,7 @@ class CategoryField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       dropdownColor: AppColors.surface,
       icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.muted),
       items: const ['Healthcare', 'Education', 'Finance', 'Productivity']
@@ -170,14 +170,14 @@ class ProjectImageGrid extends StatelessWidget {
         return GestureDetector(
           onTap: () => onSlotTap(index),
           child: Container(
-            decoration: BoxDecoration(color: hasImage ? const Color(0xFF182754) : Colors.transparent, borderRadius: BorderRadius.circular(15), border: Border.all(color: hasImage ? AppColors.border : AppColors.border.withOpacity(.75), style: hasImage ? BorderStyle.solid : BorderStyle.none)),
+            decoration: BoxDecoration(color: hasImage ? const Color(0xFF182754) : Colors.transparent, borderRadius: BorderRadius.circular(15), border: Border.all(color: hasImage ? AppColors.border : AppColors.border.withValues(alpha: 0.75), style: hasImage ? BorderStyle.solid : BorderStyle.none)),
             child: hasImage
                 ? Stack(children: [
-                    Center(child: Icon(Icons.image_outlined, color: AppColors.primaryBright.withOpacity(.85), size: 30)),
+                    Center(child: Icon(Icons.image_outlined, color: AppColors.primaryBright.withValues(alpha: 0.85), size: 30)),
                     if (index == 0) const Positioned(top: 10, left: 10, child: ImageChip('Cover')),
                     const Positioned(top: 9, right: 9, child: ImageCloseButton()),
                   ])
-                : CustomPaint(painter: DashedBorderPainter(color: AppColors.border.withOpacity(.9), radius: 15), child: const Center(child: Icon(Icons.add_photo_alternate_outlined, color: AppColors.muted, size: 26))),
+                : CustomPaint(painter: DashedBorderPainter(color: AppColors.border.withValues(alpha: 0.9), radius: 15), child: const Center(child: Icon(Icons.add_photo_alternate_outlined, color: AppColors.muted, size: 26))),
           ),
         );
       },

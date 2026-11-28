@@ -13,12 +13,15 @@ import 'package:proven/features/auth/role_selection_screen.dart';
 import 'package:proven/user_bottom_nav.dart' show BottomNavModel;
 import 'package:proven/features/company/company_shell.dart';
 import 'package:proven/features/creator/creator_shell.dart';
-import 'package:proven/features/Admin Dashboard/Admin_Dashboard.dart';
+import 'package:proven/core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
+import 'package:proven/core/theme/colors.dart';
+import 'package:proven/features/AdminDashboard/admin_dashboard.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: kIsWeb ? webFirebaseOptions : null,
-  );
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await Firebase.initializeApp(options: kIsWeb ? webFirebaseOptions : null);
   runApp(const MyApp());
 }
 
@@ -105,34 +108,31 @@ class _MyAppState extends State<MyApp> {
   // homes: one per role
   // ---------------------------------------------------------------------
 
-Widget _buildHome() {
-  switch (_role) {
-    case UserRole.admin:
-return AdminDashboard(
-  key: const ValueKey('adminHome'),
-  onLogout: _logout,
-);
+  Widget _buildHome() {
+    switch (_role) {
+      case UserRole.admin:
+        return AdminDashboard(
+          key: const ValueKey('adminHome'),
+          onLogout: _logout,
+        );
 
-    case UserRole.creator:
-      return CreatorShell(
-        key: const ValueKey('creatorHome'),
-        onLogout: _logout,
-      );
+      case UserRole.creator:
+        return CreatorShell(
+          key: const ValueKey('creatorHome'),
+          onLogout: _logout,
+        );
 
-    case UserRole.company:
-      return CompanyShell(
-        key: const ValueKey('companyHome'),
-        onLogout: _logout,
-      );
+      case UserRole.company:
+        return CompanyShell(
+          key: const ValueKey('companyHome'),
+          onLogout: _logout,
+        );
 
-    case null:
-      return const Scaffold(
-        body: Center(
-          child: Text('Invalid user role'),
-        ),
-      );
+      case null:
+        return const Scaffold(body: Center(child: Text('Invalid user role')));
+    }
   }
-}
+
   // ignore: unused_element
   Widget _userHome() {
     return Scaffold(
@@ -151,8 +151,7 @@ return AdminDashboard(
         ],
       ),
       bottomNavigationBar: FixedBottomNavBar(
-        items: BottomNavModel.userBottomNavItems ??
-            const <BottomNavModel>[],
+        items: BottomNavModel.userBottomNavItems ?? const <BottomNavModel>[],
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
       ),
@@ -189,10 +188,7 @@ return AdminDashboard(
                     },
                     child: const Text('Try again'),
                   ),
-                  TextButton(
-                    onPressed: _logout,
-                    child: const Text('Log out'),
-                  ),
+                  TextButton(onPressed: _logout, child: const Text('Log out')),
                 ],
               ),
             ),
@@ -230,9 +226,24 @@ return AdminDashboard(
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Proven',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      darkTheme: ThemeData.dark(),
+
+      theme: AppTheme.dark,
+      darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
+
+      // التحكم في لون وأيقونات شريط الموبايل العلوي والسفلي
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          systemNavigationBarColor: AppColors.tertiary,
+          systemNavigationBarIconBrightness: Brightness.light,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+        ),
+        child: child!,
+      ),
+
       home: AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: _buildStage(),
@@ -240,4 +251,3 @@ return AdminDashboard(
     );
   }
 }
-

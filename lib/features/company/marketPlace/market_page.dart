@@ -1,510 +1,417 @@
+// PATH: lib/features/company/marketPlace/market_page.dart
+// ACTION: REPLACE the existing file (same place).
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:proven/core/theme/colors.dart';
-import 'package:proven/features/company/project_details/test.dart';
+import 'package:proven/features/projects/projects_repository.dart';
+import 'package:proven/features/company/marketPlace/market_project_card.dart';
+typedef _Project = Map<String, dynamic>;
 
 class MarketPage extends StatefulWidget {
-  const MarketPage({super.key});
+  const MarketPage({super.key, this.onOpenMatchmaker, this.onOpenProject});
+  final ValueChanged<String>? onOpenProject;
+
+  /// "Try it" on the AI banner: the shell switches to the Matchmaker tab.
+  final VoidCallback? onOpenMatchmaker;
 
   @override
   State<MarketPage> createState() => _MarketPageState();
 }
 
 class _MarketPageState extends State<MarketPage> {
-  int selectedCategoryIndex = 0;
+  final _repo = ProjectsRepository();
+  late final Stream<List<_Project>> _stream = _repo.approvedProjects();
+  final _search = TextEditingController();
 
-  final List<String> categories = [
-    'All (24)',
-    'Healthcare',
-    'E-Commerce',
-    'EdTech',
-    'Habit tracker',
-    'Chat bots',
-  ];
+  String _query = '';
+  String _category = 'All';
+  int _sort = 0; // 0 newest, 1 price low-high, 2 price high-low
 
-  final List projectsList = [
-    {
-      'title': 'ClinicFlow',
-      'category': 'Healthcare',
-      'desc': 'Comprehensive clinic operations suite with...',
-      'price': '8,500 EGP',
-      'tag': 'v2.4 Ready',
-    },
-    {
-      'title': 'ShopLite',
-      'category': 'E-Commerce',
-      'desc': 'Lightweight multi-vendor commerce app with...',
-      'price': '6,200 EGP',
-      'tag': 'Mobile + Web',
-    },
-    {
-      'title': 'EduMaster',
-      'category': 'EdTech',
-      'desc': 'Interactive learning management portal with...',
-      'price': '7,000 EGP',
-      'tag': 'v1.0 Ready',
-    },
-    {
-      'title': 'Habitify',
-      'category': 'Habit tracker',
-      'desc': 'Daily goal setting and streak tracking tool...',
-      'price': '4,500 EGP',
-      'tag': 'Cross-platform',
-    },
-  ];
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  num _price(_Project p) => p['price'] is num ? p['price'] as num : 0;
+
+  List<_Project> _apply(List<_Project> all) {
+    final q = _query.trim().toLowerCase();
+    final out = all.where((p) {
+      if (_category != 'All' && '${p['category']}' != _category) return false;
+      if (q.isEmpty) return true;
+      return '${p['title']} ${p['description']} ${p['category']}'
+          .toLowerCase()
+          .contains(q);
+    }).toList();
+    if (_sort == 1) out.sort((a, b) => _price(a).compareTo(_price(b)));
+    if (_sort == 2) out.sort((a, b) => _price(b).compareTo(_price(a)));
+    return out;
+  }
+
+  void _open(_Project p) => widget.onOpenProject?.call('${p['id']}');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.onBackground,
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(color: AppColors.primaryContainer),
-                width: double.infinity,
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "PROVEN",
-                          style: GoogleFonts.ibmPlexSans(
-                            color: AppColors.onPrimary,
-                            fontWeight: FontWeight.bold,
+      backgroundColor: AppColors.tertiary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _header(),
+            Expanded(
+              child: StreamBuilder<List<_Project>>(
+                stream: _stream,
+                builder: (context, snap) {
+                  if (snap.hasError) {
+                    return const _Notice(
+                      icon: Icons.cloud_off_rounded,
+                      text: 'Could not load projects.\nCheck your internet.',
+                    );
+                  }
+                  if (!snap.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final all = snap.data!;
+                  final cats = <String>{
+                    for (final p in all)
+                      if ('${p['category']}'.isNotEmpty) '${p['category']}',
+                  }.toList()..sort();
+                  final shown = _apply(all);
+
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(child: _chips(['All', ...cats])),
+                      SliverToBoxAdapter(child: _banner()),
+                      SliverToBoxAdapter(child: _sectionTitle(shown.length)),
+                      if (shown.isEmpty)
+                        const SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _Notice(
+                            icon: Icons.inventory_2_outlined,
+                            text: 'No approved projects match yet.',
                           ),
-                        ),
-                        const SizedBox(width: 15),
-                        Container(
-                          width: 90,
-                          height: 27,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.onPrimaryFixed,
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(color: AppColors.borderOutline),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.5),
-                            child: Text(
-                              "COMPANY MODE",
-                              style: GoogleFonts.ibmPlexSans(
-                                color: AppColors.primaryFixedDim,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 8,
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          sliver: SliverGrid(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 0.78,
+                                ),
+                            delegate: SliverChildBuilderDelegate(
+                              (_, i) => MarketProjectCard(
+                                project: shown[i],
+                                price: _price(shown[i]),
+                                onTap: () => _open(shown[i]),
                               ),
+                              childCount: shown.length,
                             ),
                           ),
                         ),
-                        const Spacer(),
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor: AppColors.onPrimaryFixed,
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.notifications_none_outlined,
-                              color: AppColors.primaryFixedDim,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _header() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryContainer,
+        border: Border(
+          bottom: BorderSide(color: AppColors.outline.withValues(alpha: 0.25)),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                'PROVEN',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.onPrimaryFixed,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.inversePrimary.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: const Text(
+                  'COMPANY',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryFixedDim,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'Find your next project',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: SearchBar(
+                    controller: _search,
+                    elevation: const WidgetStatePropertyAll(0),
+                    backgroundColor: const WidgetStatePropertyAll(
+                      AppColors.tertiary,
                     ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Find your next project",
-                      style: GoogleFonts.ibmPlexSans(
-                        color: AppColors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    hintText: 'Search projects, e.g. booking system',
+                    hintStyle: const WidgetStatePropertyAll(
+                      TextStyle(
+                        color: AppColors.onPrimaryContainer,
+                        fontSize: 13,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: SearchBar(
-                              backgroundColor: WidgetStatePropertyAll(
-                                AppColors.onBackground,
-                              ),
-                              hintText: 'Search projects, e.g. booking system',
-                              hintStyle: WidgetStatePropertyAll(
-                                GoogleFonts.ibmPlexSans(
-                                  color: AppColors.inversePrimary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              leading: Icon(
-                                Icons.search,
-                                color: AppColors.inversePrimary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          alignment: Alignment.center,
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.tertiary,
-                            border: Border.all(color: AppColors.borderOutline),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.filter_list,
-                              size: 30,
-                              color: AppColors.surfaceTint,
-                            ),
-                          ),
-                        ),
-                      ],
+                    leading: const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.onPrimaryContainer,
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: SizedBox(
-                  height: 32,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final isSelected = selectedCategoryIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedCategoryIndex = index;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.borderOutline),
-                            color: isSelected
-                                ? AppColors.onPrimaryFixedVariant
-                                : AppColors.textPrimary,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              categories[index],
-                              style: GoogleFonts.ibmPlexSans(
-                                color: AppColors.onPrimary,
-                                fontSize: 12,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    onChanged: (v) => setState(() => _query = v),
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Divider(),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              const SizedBox(width: 10),
+              PopupMenuButton<int>(
+                tooltip: 'Sort',
+                color: AppColors.tertiaryContainer,
+                onSelected: (v) => setState(() => _sort = v),
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 0, child: Text('Newest')),
+                  PopupMenuItem(value: 1, child: Text('Price: low to high')),
+                  PopupMenuItem(value: 2, child: Text('Price: high to low')),
+                ],
                 child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryContainer,
+                    color: AppColors.tertiary,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.borderOutline),
+                    border: Border.all(
+                      color: AppColors.outline.withValues(alpha: 0.3),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.auto_awesome,
-                                  size: 14,
-                                  color: AppColors.inversePrimary,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "AI MATCHMAKER",
-                                  style: GoogleFonts.ibmPlexSans(
-                                    color: AppColors.inversePrimary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              "Not sure what you need? Ask our AI Matchmaker",
-                              style: GoogleFonts.ibmPlexSans(
-                                color: AppColors.onPrimary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.inverseSurface,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    height: 30,
-                                    width: 60,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.borderOutline,
-                                      ),
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: AppColors.primaryContainer,
-                                    ),
+                  child: const Icon(
+                    Icons.swap_vert_rounded,
+                    color: AppColors.inversePrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Text(
-                                            "Try it",
-                                            style: GoogleFonts.ibmPlexSans(
-                                              color: AppColors.onPrimary,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward,
-                                          size: 10,
-                                          color: AppColors.tertiaryFixedDim,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+  Widget _chips(List<String> cats) {
+    return SizedBox(
+      height: 54,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        itemCount: cats.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final sel = cats[i] == _category;
+          return GestureDetector(
+            onTap: () => setState(() => _category = cats[i]),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: sel
+                    ? AppColors.brandNavy
+                    : AppColors.tertiaryContainer.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: sel
+                      ? AppColors.inversePrimary.withValues(alpha: 0.6)
+                      : AppColors.outline.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Text(
+                cats[i],
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                  color: sel ? Colors.white : AppColors.onTertiaryContainer,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _banner() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 18),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.primaryContainer, AppColors.tertiaryContainer],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: AppColors.inversePrimary.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 14,
+                        color: AppColors.inversePrimary,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'AI MATCHMAKER',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.inversePrimary,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "Approved projects",
-                          style: GoogleFonts.ibmPlexSans(
-                            color: AppColors.onPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.borderOutline),
-                          ),
-                          child: Text(
-                            "4 Available",
-                            style: GoogleFonts.ibmPlexSans(
-                              color: AppColors.inversePrimary,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Not sure what you need? Ask our AI Matchmaker.',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
                     ),
-                    Text(
-                      "Verified IP",
-                      style: GoogleFonts.ibmPlexSans(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: projectsList.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.8,
                   ),
-                  itemBuilder: (context, index) {
-                    final project = projectsList[index];
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.borderOutline),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                project['category'],
-                                style: GoogleFonts.ibmPlexSans(
-                                  color: AppColors.inversePrimary,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Icon(
-                                Icons.verified,
-                                size: 14,
-                                color: Colors.lightBlueAccent,
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Center(
-                            child: Icon(
-                              Icons.lock_outline,
-                              size: 28,
-                              color: AppColors.inversePrimary,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Center(
-                            child: Text(
-                              project['tag'],
-                              style: GoogleFonts.ibmPlexSans(
-                                color: AppColors.inversePrimary,
-                                fontSize: 9,
-                              ),
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            project['title'],
-                            style: GoogleFonts.ibmPlexSans(
-                              color: AppColors.onPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            project['desc'],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.ibmPlexSans(
-                              color: AppColors.inversePrimary,
-                              fontSize: 10,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "PRICE",
-                                    style: GoogleFonts.ibmPlexSans(
-                                      color: AppColors.inversePrimary,
-                                      fontSize: 8,
-                                    ),
-                                  ),
-                                  Text(
-                                    project['price'],
-                                    style: GoogleFonts.ibmPlexSans(
-                                      color: AppColors.onPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              InkWell(
-                                borderRadius: BorderRadius.circular(6),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProjectDetailsPage(project: project),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 26,
-                                  height: 26,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.tertiary,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 12,
-                                    color: AppColors.onPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            FilledButton(
+              onPressed: widget.onOpenMatchmaker,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.inversePrimary,
+                foregroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              const SizedBox(height: 30),
-            ],
+              child: const Text(
+                'Try it',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(int count) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Row(
+        children: [
+          const Text(
+            'Approved projects',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '$count',
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.inversePrimary,
+              ),
+            ),
+          ),
+          const Spacer(),
+          const Icon(
+            Icons.verified_rounded,
+            size: 14,
+            color: AppColors.inversePrimary,
+          ),
+          const SizedBox(width: 4),
+          const Text(
+            'Verified IP',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.onTertiaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _Notice extends StatelessWidget {
+  const _Notice({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 46, color: AppColors.onTertiaryContainer),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.onTertiaryContainer),
+            ),
+          ],
         ),
       ),
     );
